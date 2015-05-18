@@ -16,40 +16,58 @@ public class Library implements Organizer {
 		files = new ArrayList<Rentable>();
 	}
 
-	public void add(Rentable r){
+	public boolean add(Rentable r){
 		files.add(r);
+		return true;
 	}
 
-	public void newUser(Person p){
-		users.add(p);
+	public boolean newUser(Person p){
+		Optional<Person> newPerson = _hasUser(p.getName());
+
+		if(!newPerson.isPresent()){
+			users.add(p);
+			return true;
+		}
+
+			return false;
 	}
 
 	public Person getUser(String name){
-		Optional<Person> p = users
-			.stream()
-			.filter(u -> u.getName().equals(name))
-			.findFirst();	
+		Optional<Person> p = _hasUser(name);
 
 		return p.orElse(null);
+	}
+
+
+	public boolean hasArchive(String str){
+		Optional<Rentable> r = _hasArchive(str);
+
+		if(r.isPresent())
+			return true;
+
+		return false;
+	}
+
+	private Optional<Rentable> _hasArchive(String str){
+		return files
+			.stream()
+			.filter(f -> f.getName().equals(str))
+			.findFirst();
+	}
+
+	private Optional<Person> _hasUser(String str){
+		return users
+			.stream()
+			.filter(u -> u.getName().equals(str))
+			.findFirst();	
 	}
 
 	public int getUserSize(){
 		return users.size();
 	}
 
-	public int getArchives(){
+	public int getArchivesSize(){
 		return users.size();
 	}
-
-	public boolean hasArchive(String str){
-		Optional<Rentable> r = files
-			.stream()
-			.filter(f -> f.getName().equals(str))
-			.findFirst();
-
-		if(r.isPresent())
-			return true;
-		return false;
-	}
-
+	
 }
