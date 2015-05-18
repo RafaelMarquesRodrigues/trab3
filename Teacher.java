@@ -1,5 +1,0 @@
-
-
-class Teacher implements Person {
-
-}

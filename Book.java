@@ -1,5 +1,0 @@
-
-
-class Book implements Rentable {
-	
-}

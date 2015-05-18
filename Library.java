@@ -1,5 +1,0 @@
-
-
-class Library implements Organizer {
-	
-}

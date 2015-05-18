@@ -1,5 +1,0 @@
-
-
-class Community implements Person {
-	
-}
