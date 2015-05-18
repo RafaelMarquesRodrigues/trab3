@@ -2,7 +2,8 @@ package br.usp.icmc.poo.TurmaA015.Person;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 
-interface Person {
-	int rent(String str);
-	int refund(Rentable r);
+public interface Person {
+	boolean rentFile(Rentable r, int timeOfPossession);
+	boolean refundFile(Rentable r);
+	String getName();
 }

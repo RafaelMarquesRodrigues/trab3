@@ -1,9 +1,14 @@
 
 package br.usp.icmc.poo.TurmaA015.Library;
 
-import br.usp.icmc.poo.TurmaA015.Rentable;
+import br.usp.icmc.poo.TurmaA015.Rentable.*;
+import br.usp.icmc.poo.TurmaA015.Person.*;
 
-interface Organizer {
+public interface Organizer {
 	void add(Rentable r);
-	void newClient(Person p);
+	void newUser(Person p);
+	Person getUser(String name);
+	int getUserSize();
+	int getArchives();
+	boolean hasArchive(String name);
 }
