@@ -17,6 +17,10 @@ public class LibraryOrganizer {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		String command = "";
 
+
+		//TA UM LIXO ISSO é só pra testar se os comandos funcionam e se as coisas funcionam, tem que fazer mais bonito depois
+		//pra o usuario pegar um livro, ele vai ter que fazer "login" na biblioteca, aí qualquer pedido que ele fizer vai tar no nome dele
+		//se ele pedir pra adicionar alguma pessoa tem que dar erro pq ele nao tem permissao pra fazer isso.
 		try {
 			while(!command.equals("exit")){
 				command = br.readLine();
@@ -27,7 +31,7 @@ public class LibraryOrganizer {
 				}
 				else if(command.equals("add student")){
 					System.out.println("Please enter the name of the user you want to add: ");
-					
+
 					if(library.newUser(new Student(br.readLine())))
 						System.out.println("Added new user successfully");
 					else
