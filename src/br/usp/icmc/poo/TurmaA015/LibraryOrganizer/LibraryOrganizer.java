@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.*;
 
 public class LibraryOrganizer {
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		System.out.println("System starting...");
 		
 		System.out.println("Initializing library...");
@@ -27,12 +27,13 @@ public class LibraryOrganizer {
 
 				if(command.equals("add book")){
 					System.out.println("Please enter the name of the book you want to add: ");
-					library.add(new Book(br.readLine()));
+					library.addFile(new Book(br.readLine()));
 				}
 				else if(command.equals("add student")){
+					//System.out.print("\033[2J");
 					System.out.println("Please enter the name of the user you want to add: ");
 
-					if(library.newUser(new Student(br.readLine())))
+					if(library.addUser(new Student(br.readLine())))
 						System.out.println("Added new user successfully");
 					else
 						System.out.println("Theres already a student with this name !");
@@ -43,7 +44,7 @@ public class LibraryOrganizer {
 
 					String book = br.readLine();
 
-					if(library.hasArchive(book))
+					if(library.getFile(book) != null)
 						System.out.println("Library has book " + book +  " !");
 					else		
 						System.out.println("Library doesn't have the book " + book + " :(");

@@ -16,12 +16,20 @@ public class Library implements Organizer {
 		files = new ArrayList<Rentable>();
 	}
 
-	public boolean add(Rentable r){
-		files.add(r);
+	//adiciona um novo arquivo na biblioteca
+	public boolean addFile(Rentable r){
+		Optional<Rentable> or = _hasFile(r.getName());
+
+		if(!or.isPresent())
+			files.add(r);
+		else
+			r.addCopy();
+
 		return true;
 	}
 
-	public boolean newUser(Person p){
+	//adiciona um novo usuario na biblioteca
+	public boolean addUser(Person p){
 		Optional<Person> newPerson = _hasUser(p.getName());
 
 		if(!newPerson.isPresent()){
@@ -32,29 +40,31 @@ public class Library implements Organizer {
 			return false;
 	}
 
+	//retorna, se existir, um arquivo com nome "name"
+	public Rentable getFile(String name){
+		Optional<Rentable> f = _hasFile(name);
+
+		return f.orElse(null);
+	}
+
+	//retorna, se existir, um usuario com nome "name"
 	public Person getUser(String name){
 		Optional<Person> p = _hasUser(name);
 
 		return p.orElse(null);
 	}
 
-
-	public boolean hasArchive(String str){
-		Optional<Rentable> r = _hasArchive(str);
-
-		if(r.isPresent())
-			return true;
-
-		return false;
-	}
-
-	private Optional<Rentable> _hasArchive(String str){
+	//ambas as funções _has<E> retornam o primeiro elemento compatível que encontrarem, porque nao sao aceitos duas pessoas com mesmo nome na biblioteca
+	//e os livros com nomes repetidos sao adicionados como cópias de um mesmo livro
+	//retorna o primeiro arquivo com nome == str que encontrar
+	private Optional<Rentable> _hasFile(String str){
 		return files
 			.stream()
 			.filter(f -> f.getName().equals(str))
 			.findFirst();
 	}
 
+	//retorna a primeira pessoa com nome == str que encontrar
 	private Optional<Person> _hasUser(String str){
 		return users
 			.stream()
@@ -62,12 +72,11 @@ public class Library implements Organizer {
 			.findFirst();	
 	}
 
-	public int getUserSize(){
+	public int getUsersSize(){
 		return users.size();
 	}
 
-	public int getArchivesSize(){
+	public int getFilesSize(){
 		return users.size();
 	}
-	
 }

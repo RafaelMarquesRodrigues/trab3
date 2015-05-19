@@ -4,4 +4,5 @@ public interface Rentable {
 	int getCopies();
 	String getName();
 	String getType();
+	void addCopy();
 }
