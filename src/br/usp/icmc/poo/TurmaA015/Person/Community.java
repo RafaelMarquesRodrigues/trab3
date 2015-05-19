@@ -8,4 +8,11 @@ public class Community extends AbstractPerson {
 		super(str);
 	}
 
+	public Community(){
+
+	}
+
+	public String toString(){
+		return "Community";
+	}
 }

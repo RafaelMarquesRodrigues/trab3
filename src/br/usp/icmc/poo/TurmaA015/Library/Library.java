@@ -6,14 +6,24 @@ import br.usp.icmc.poo.TurmaA015.Person.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 public class Library implements Organizer {
-	private ArrayList<Person> users;
-	private ArrayList<Rentable> files;
+	private Map<String, Integer> rentTime;	//guardar o tempo de aluguel máximo que cada pessoa pode ter
+	private ArrayList<User> users;			//guarda os dados de cada usuário
+	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
 
 	public Library() {
-		users = new ArrayList<Person>();
+		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
+		
+		rentTime = new HashMap<String, Integer>();
+
+		//nome de cada classe para guardar o tempo reservado para o alugle de cada um
+		rentTime.put((new Student()).toString(), new Integer(4));
+		rentTime.put((new Teacher()).toString(), new Integer(6));
+		rentTime.put((new Community()).toString(), new Integer(2));
 	}
 
 	//adiciona um novo arquivo na biblioteca
@@ -33,13 +43,22 @@ public class Library implements Organizer {
 		Optional<Person> newPerson = _hasUser(p.getName());
 
 		if(!newPerson.isPresent()){
-			users.add(p);
+			users.add(new User(p));
 			return true;
 		}
 
 			return false;
 	}
 
+	/*public int makeRent(Person person, String str){
+		if(_hasUser(person.getName()) == null)
+			return -1;
+		if(_hasFile(person.getName()) == null)
+			return -2;
+
+		rentTime.get(person.toString())
+	}
+*/
 	//retorna, se existir, um arquivo com nome "name"
 	public Rentable getFile(String name){
 		Optional<Rentable> f = _hasFile(name);
@@ -68,6 +87,7 @@ public class Library implements Organizer {
 	private Optional<Person> _hasUser(String str){
 		return users
 			.stream()
+			.map(User::getPerson)
 			.filter(u -> u.getName().equals(str))
 			.findFirst();	
 	}

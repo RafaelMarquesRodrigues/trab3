@@ -7,4 +7,13 @@ public class Student extends AbstractPerson {
 	public Student(String str){
 		super(str);
 	}
+
+	public Student(){
+		
+	}
+
+	public String toString(){
+		return "Student";
+	}
+
 }

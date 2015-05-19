@@ -7,4 +7,12 @@ public class Teacher extends AbstractPerson {
 	public Teacher(String str){
 		super(str);
 	}
+
+	public Teacher(){
+		
+	}
+
+	public String toString(){
+		return "Teacher";
+	}
 }
