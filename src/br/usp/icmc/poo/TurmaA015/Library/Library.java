@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Map;
 import java.util.HashMap;
+import java.io.*;
+import java.util.*;
 
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
@@ -25,44 +27,70 @@ public class Library implements Organizer {
 		if(file == null)
 			files.add(r);
 		else
-			r.addCopy();
+			file.addCopy();
 		return true;
 	}
 
 	//adiciona um novo usuario na biblioteca
-	public boolean addUser(String name){
-		User newUser = getUser(name);
-
+	public boolean addUser(User u){
+		User newUser = getUser(u.getName());
+	
 		if(newUser == null){
-			users.add(new Student(name));
+			users.add(u);
 			return true;
 		}
 
-			return false;
+		return false;
 	}
 
 	public int makeRent(String userName, String fileName){
 		User user = getUser(userName);
 		Rentable rentedFile = getFile(fileName);
 		
-		if(user == null)					//não existe a pessoa requisitada
+		if(user == null)						//não existe a pessoa requisitada
 			return -1;
 		if(rentedFile == null)					//não existe o livro requisitado
 			return -2;
-		if(rentedFile.getCopies() == 0)
+		if(rentedFile.getCopies() == 0)			//o livro existe mas está alugado
 			return -3;
+		if(user.getFilesQuantity() >= user.getMaxFiles())
+			return -4;
+		if(rentedFile.needsPermission() && !user.hasPermission())
+			return -5;
 
-		//se o usuário não tiver o maior número de livros permitido pela biblioteca
-		//verificar se o usuario tem permissao 
-		//if(!rentalbe.needsPermission() || user.hasPersmission())
-		if(user.getFilesQuantity() < user.getMaxFiles()){
-			rentedFile.removeCopy();
-			user.rentFile(rentedFile);
-			
-			return 1;	//ok
-		}
+		user.rentFile(rentedFile);
+		rentedFile.removeCopy();			
+		return 1;	//ok
+	}
 
-		return -4;//número de livros no máximo
+	public int refundFile(String userName, String fileName){
+		User user = getUser(userName);
+		Rentable rentedFile = getFile(fileName);
+		
+		if(user == null)						//não existe a pessoa requisitada
+			return -1;
+		if(rentedFile == null)					//não existe o livro requisitado
+			return -2;
+		if(!user.hasFile(rentedFile))
+			return -3;
+		if(user.hasDelay(rentedFile))
+			user.removeDelay(rentedFile);
+		
+		user.refundFile(rentedFile);
+		rentedFile.addCopy();
+		return 1;
+	}
+
+	public void showUsers(){
+		users
+			.stream()
+			.forEach(System.out::println);
+	}
+
+	public void showFiles(){
+		files
+			.stream()
+			.forEach(System.out::println);
 	}
 
 	//retorna, se existir, um arquivo com nome "name"
@@ -86,7 +114,6 @@ public class Library implements Organizer {
 		return files
 			.stream()
 			.filter(f -> f.getName().equals(str))
-			//.findFirst();
 			.findAny();
 	}
 
@@ -95,7 +122,6 @@ public class Library implements Organizer {
 		return users
 			.stream()
 			.filter(u -> u.getName().equals(str))
-			//.findFirst();
 			.findAny();	
 	}
 

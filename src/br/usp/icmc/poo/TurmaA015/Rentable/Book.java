@@ -4,6 +4,7 @@ public class Book extends AbstractRentable {
 
 	public Book(String str){
 		super(str);						//chama o construtor da classe que está estendendo
+		permission = false;
 	}
 
 	public String getType(){

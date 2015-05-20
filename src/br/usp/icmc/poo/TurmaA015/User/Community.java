@@ -8,5 +8,6 @@ public class Community extends AbstractUser {
 		super(str);
 		maxRentTime = 15;
 		maxFiles = 2;
+		permission = false;
 	}
 }

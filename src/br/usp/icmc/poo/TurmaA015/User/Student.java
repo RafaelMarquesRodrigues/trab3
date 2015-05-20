@@ -8,5 +8,6 @@ public class Student extends AbstractUser {
 		super(str);
 		maxRentTime = 15;
 		maxFiles = 4;
+		permission = true;
 	}
 }

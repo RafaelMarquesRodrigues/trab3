@@ -6,4 +6,5 @@ public interface Rentable {
 	String getType();
 	void addCopy();
 	void removeCopy();
+	boolean needsPermission();
 }

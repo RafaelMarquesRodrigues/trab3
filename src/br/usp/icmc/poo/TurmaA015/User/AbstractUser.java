@@ -7,12 +7,14 @@ import java.util.*;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 
 abstract class AbstractUser implements User {
-	protected static int maxFiles;
-	protected static int maxRentTime;
-	protected static String name;
+	protected int maxFiles;
+	protected int maxRentTime;
+	protected String name;
+	protected boolean permission;
 	private Map<Rentable, Integer> delays;
 	private Map<Rentable, Integer> rentTime;
 	private ArrayList<Rentable> ownedFiles;
@@ -28,23 +30,31 @@ abstract class AbstractUser implements User {
 		return maxFiles;
 	}
 
-	//não precisa verificar se a pessoa tem o max de livros, pq a biblioteca sabe quantos livros ele tem
-	//e so vai deixar ele alugar um livro se el não tiver o número máximo de livros
-	public boolean rentFile(Rentable r){
-		ownedFiles.add(r);
-		return true;
+	public boolean hasPermission(){
+		return permission;
 	}
 
-	public boolean refundFile(Rentable r){
+	public boolean hasDelay(Rentable r){
+		return delays.containsKey(r);
+	}
 
-		if(ownedFiles.contains(r)){
-			ownedFiles.remove(r);
-			rentTime.remove(r);	//retira o tempo de aluguel do livro
-			if(delays.containsKey(r))	//retira o atraso do livro
-				delays.remove(r);
-			return true;
-		}
-		return false;
+	public boolean hasFile(Rentable r){
+		return ownedFiles.contains(r);
+	}
+
+	public void removeDelay(Rentable r){
+		delays.remove(r);
+	}
+
+	//não precisa verificar se a pessoa tem o max de livros, pq a biblioteca sabe quantos livros ele tem
+	//e so vai deixar ele alugar um livro se el não tiver o número máximo de livros
+	public void rentFile(Rentable r){
+		ownedFiles.add(r);
+	}
+
+	public void refundFile(Rentable r){
+		ownedFiles.remove(r);
+		rentTime.remove(r);	//retira o tempo de aluguel do livro
 	}
 
 	//faz o tempo "passar"
@@ -62,5 +72,14 @@ abstract class AbstractUser implements User {
 
 	public String getName(){
 		return name;
+	}
+
+	public String toString(){
+		String str = ownedFiles
+			.stream()
+			.map(Rentable::getName)
+			.collect(Collectors.joining(" "));
+
+		return getName() + " - (" + getFilesQuantity() + ") Rented Files: " + str + " MaxFiles: " + maxFiles;	
 	}
 }
