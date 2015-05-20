@@ -2,7 +2,7 @@
 package br.usp.icmc.poo.TurmaA015.LibraryOrganizer;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
-import br.usp.icmc.poo.TurmaA015.Person.*;
+import br.usp.icmc.poo.TurmaA015.User.*;
 import br.usp.icmc.poo.TurmaA015.Library.*;
 
 import java.io.*;
@@ -29,7 +29,7 @@ public class LibraryOrganizer {
 					//System.out.print("\033[2J");
 					System.out.println("Please enter the name of the user you want to add: ");
 
-					if(library.addUser(new Student(br.readLine())))
+					if(library.addUser(br.readLine()))
 						System.out.println("Added new user successfully");
 					else
 						System.out.println("Theres already a student with this name !");
@@ -49,7 +49,7 @@ public class LibraryOrganizer {
 					System.out.println("Please enter the name of the archive you want to search: ");
 					String name = br.readLine();
 
-					Person p = library.getUser(name);
+					User p = library.getUser(name);
 
 					if(p != null)
 						System.out.println("Someone called " + p.getName() + " uses the library resources !");

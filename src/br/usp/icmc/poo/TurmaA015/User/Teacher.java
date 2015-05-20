@@ -1,15 +1,13 @@
-package br.usp.icmc.poo.TurmaA015.Person;
+package br.usp.icmc.poo.TurmaA015.User;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 
-public class Teacher extends AbstractPerson {
+public class Teacher extends AbstractUser {
 
 	public Teacher(String str){
 		super(str);
-	}
-
-	public Teacher(){
-		
+		maxRentTime = 60;
+		maxFiles = 6;
 	}
 
 	public String toString(){

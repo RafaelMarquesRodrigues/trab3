@@ -2,7 +2,7 @@
 package br.usp.icmc.poo.TurmaA015.Library;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
-import br.usp.icmc.poo.TurmaA015.Person.*;
+import br.usp.icmc.poo.TurmaA015.User.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -10,25 +10,12 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Library implements Organizer {
-	private Map<String, Integer> maxRentTime;	//guardar o tempo de aluguel máximo que cada pessoa pode ter
-	private Map<String, Integer> maxFilesRented;	//guardar o numero de arquivos máximo que cada pessoa pode ter
 	private ArrayList<User> users;			//guarda os dados de cada usuário
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
 
 	public Library() {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
-		maxRentTime = new HashMap<String, Integer>();
-		maxFilesRented = new HashMap<String, Integer>();
-
-		//nome de cada classe para guardar o tempo reservado para o aluguel de cada um
-		maxRentTime.put((new Student()).toString(), new Integer(15));
-		maxRentTime.put((new Teacher()).toString(), new Integer(60));
-		maxRentTime.put((new Community()).toString(), new Integer(15));
-
-		maxFilesRented.put((new Student()).toString(), new Integer(4));
-		maxFilesRented.put((new Teacher()).toString(), new Integer(6));
-		maxFilesRented.put((new Community()).toString(), new Integer(2));
 	}
 
 	//adiciona um novo arquivo na biblioteca
@@ -40,12 +27,13 @@ public class Library implements Organizer {
 			r.addCopy();
 		return true;
 	}
+
 	//adiciona um novo usuario na biblioteca
-	public boolean addUser(Person p){
-		User newUser = getUser(p.getName());
+	public boolean addUser(String name){
+		User newUser = getUser(name);
 
 		if(newUser == null){
-			users.add(new User(p));
+			users.add(new Student(name));
 			return true;
 		}
 
@@ -53,19 +41,20 @@ public class Library implements Organizer {
 	}
 
 	public int makeRent(String name, String str){
-		if(getUser(name) == null)			//não existe a pessoa requisitada
+		if(getUser(name) == null)					//não existe a pessoa requisitada
 			return -1;
-		if(getFile(str) == null)			//não existe o livro requisitado
+		if(getFile(str) == null)					//não existe o livro requisitado
 			return -2;
 
 		User user = getUser(name);
 
 		//se o usuário não tiver o maior número de livros permitido pela biblioteca
-		System.out.println(maxFilesRented.get(user.getPerson().toString()).intValue());
+		System.out.println(maxFilesRented.get(user.toString()).intValue());
 		System.out.println(user.getFilesQuantity());
-		
-		if(user.getFilesQuantity() < maxFilesRented.get(user.getPerson().toString()).intValue()){
-			user.addFile(getFile(str));
+
+		if(user.getFilesQuantity() < user.getMaxFiles()){
+			user.rentFile(getFile(str));
+			
 			return 1;	//ok
 		}
 
@@ -100,7 +89,7 @@ public class Library implements Organizer {
 	private Optional<User> _hasUser(String str){
 		return users
 			.stream()
-			.filter(u -> u.getPerson().getName().equals(str))
+			.filter(u -> u.getName().equals(str))
 			.findFirst();	
 	}
 

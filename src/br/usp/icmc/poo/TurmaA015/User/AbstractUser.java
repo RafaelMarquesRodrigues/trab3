@@ -1,35 +1,38 @@
-package br.usp.icmc.poo.TurmaA015.Library;
+package br.usp.icmc.poo.TurmaA015.User;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
-import br.usp.icmc.poo.TurmaA015.Person.*;
+
+import java.util.*;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-//classe para facilitar o trabalho da biblioteca para guardar os dados
-//cada pessoa que aluga um livro na biblioteca tem seu respectivo usuario na biblioteca
-//o usuário deve guardar:
-//1 - o atraso de cada pessoa em relação à um respectivo livro (hashmap)
-//2 - os livros em posse de cada pessoa (arraylist)
-//3 - o tempo que a pessoa está com o livro
-public class User {
-	private Person person;
+
+abstract class AbstractUser implements User {
+	protected static int maxFiles;
+	protected static int maxRentTime;
+	protected static String name;
 	private Map<Rentable, Integer> delays;
 	private Map<Rentable, Integer> rentTime;
 	private ArrayList<Rentable> ownedFiles;
 
-	public User(Person p){
-		person = p;
+	public AbstractUser(String str){
+		name = str;
 		delays = new HashMap<Rentable, Integer>();
 		rentTime = new HashMap<Rentable, Integer>();
 		ownedFiles = new ArrayList<Rentable>();
 	}
 
+	public int getMaxFiles(){
+		return maxFiles;
+	}
+
 	//não precisa verificar se a pessoa tem o max de livros, pq a biblioteca sabe quantos livros ele tem
 	//e so vai deixar ele alugar um livro se el não tiver o número máximo de livros
-	public void addFile(Rentable r){
+	public boolean rentFile(Rentable r){
 		ownedFiles.add(r);
+		return true;
 	}
 
 	public boolean refundFile(Rentable r){
@@ -57,10 +60,7 @@ public class User {
 		return ownedFiles.size();
 	}
 
-	//retorna a pessoa que esse usuário guarda
-	public Person getPerson(){
-		return person;
+	public String getName(){
+		return name;
 	}
 }
-
-

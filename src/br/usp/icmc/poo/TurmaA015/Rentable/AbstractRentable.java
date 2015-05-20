@@ -3,7 +3,8 @@ package br.usp.icmc.poo.TurmaA015.Rentable;
 //classe criada para implementar métodos que são comuns para todos os tipos de objeto "alugáveis"
 abstract class AbstractRentable implements Rentable {
 	protected int quantity;
-	protected String name;
+
+	protected static String name;
 
 	public AbstractRentable(String str){
 		name = str;
