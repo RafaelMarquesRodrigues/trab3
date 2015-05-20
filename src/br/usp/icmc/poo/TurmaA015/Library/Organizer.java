@@ -10,8 +10,10 @@ public interface Organizer {
 	boolean addUser(Person p);
 
 	//métodos para verificar as pessoas que tem algum arquivo do local e quais arquivos existem no local
-	Person getUser(String name);
+	User getUser(String name);
 	Rentable getFile(String name);
+
+	int makeRent(String name, String str);
 
 	int getUsersSize();
 	int getFilesSize();

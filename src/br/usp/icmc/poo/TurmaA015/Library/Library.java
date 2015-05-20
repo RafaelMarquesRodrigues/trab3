@@ -10,39 +10,41 @@ import java.util.Map;
 import java.util.HashMap;
 
 public class Library implements Organizer {
-	private Map<String, Integer> rentTime;	//guardar o tempo de aluguel máximo que cada pessoa pode ter
+	private Map<String, Integer> maxRentTime;	//guardar o tempo de aluguel máximo que cada pessoa pode ter
+	private Map<String, Integer> maxFilesRented;	//guardar o numero de arquivos máximo que cada pessoa pode ter
 	private ArrayList<User> users;			//guarda os dados de cada usuário
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
 
 	public Library() {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
-		
-		rentTime = new HashMap<String, Integer>();
+		maxRentTime = new HashMap<String, Integer>();
+		maxFilesRented = new HashMap<String, Integer>();
 
-		//nome de cada classe para guardar o tempo reservado para o alugle de cada um
-		rentTime.put((new Student()).toString(), new Integer(4));
-		rentTime.put((new Teacher()).toString(), new Integer(6));
-		rentTime.put((new Community()).toString(), new Integer(2));
+		//nome de cada classe para guardar o tempo reservado para o aluguel de cada um
+		maxRentTime.put((new Student()).toString(), new Integer(15));
+		maxRentTime.put((new Teacher()).toString(), new Integer(60));
+		maxRentTime.put((new Community()).toString(), new Integer(15));
+
+		maxFilesRented.put((new Student()).toString(), new Integer(4));
+		maxFilesRented.put((new Teacher()).toString(), new Integer(6));
+		maxFilesRented.put((new Community()).toString(), new Integer(2));
 	}
 
 	//adiciona um novo arquivo na biblioteca
 	public boolean addFile(Rentable r){
 		Optional<Rentable> or = _hasFile(r.getName());
-
 		if(!or.isPresent())
 			files.add(r);
 		else
 			r.addCopy();
-
 		return true;
 	}
-
 	//adiciona um novo usuario na biblioteca
 	public boolean addUser(Person p){
-		Optional<Person> newPerson = _hasUser(p.getName());
+		User newUser = getUser(p.getName());
 
-		if(!newPerson.isPresent()){
+		if(newUser == null){
 			users.add(new User(p));
 			return true;
 		}
@@ -50,15 +52,26 @@ public class Library implements Organizer {
 			return false;
 	}
 
-	/*public int makeRent(Person person, String str){
-		if(_hasUser(person.getName()) == null)
+	public int makeRent(String name, String str){
+		if(getUser(name) == null)			//não existe a pessoa requisitada
 			return -1;
-		if(_hasFile(person.getName()) == null)
+		if(getFile(str) == null)			//não existe o livro requisitado
 			return -2;
 
-		rentTime.get(person.toString())
+		User user = getUser(name);
+
+		//se o usuário não tiver o maior número de livros permitido pela biblioteca
+		System.out.println(maxFilesRented.get(user.getPerson().toString()).intValue());
+		System.out.println(user.getFilesQuantity());
+		
+		if(user.getFilesQuantity() < maxFilesRented.get(user.getPerson().toString()).intValue()){
+			user.addFile(getFile(str));
+			return 1;	//ok
+		}
+
+		return -3;//número de livros no máximo
 	}
-*/
+
 	//retorna, se existir, um arquivo com nome "name"
 	public Rentable getFile(String name){
 		Optional<Rentable> f = _hasFile(name);
@@ -67,8 +80,8 @@ public class Library implements Organizer {
 	}
 
 	//retorna, se existir, um usuario com nome "name"
-	public Person getUser(String name){
-		Optional<Person> p = _hasUser(name);
+	public User getUser(String name){
+		Optional<User> p = _hasUser(name);
 
 		return p.orElse(null);
 	}
@@ -84,11 +97,10 @@ public class Library implements Organizer {
 	}
 
 	//retorna a primeira pessoa com nome == str que encontrar
-	private Optional<Person> _hasUser(String str){
+	private Optional<User> _hasUser(String str){
 		return users
 			.stream()
-			.map(User::getPerson)
-			.filter(u -> u.getName().equals(str))
+			.filter(u -> u.getPerson().getName().equals(str))
 			.findFirst();	
 	}
 

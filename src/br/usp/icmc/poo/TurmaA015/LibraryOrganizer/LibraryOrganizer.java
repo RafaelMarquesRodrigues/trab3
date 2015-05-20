@@ -45,7 +45,7 @@ public class LibraryOrganizer {
 					else		
 						System.out.println("Library doesn't have the book " + book + " :(");
 				}
-				else if(command.equals("search user")){
+		/*		else if(command.equals("search user")){
 					System.out.println("Please enter the name of the archive you want to search: ");
 					String name = br.readLine();
 
@@ -55,6 +55,22 @@ public class LibraryOrganizer {
 						System.out.println("Someone called " + p.getName() + " uses the library resources !");
 					else		
 						System.out.println("User " + name + " isn't registered :(");
+				}*/
+				else if(command.equals("rent file")){
+					System.out.println("Please enter the name of the archive and the person: ");
+					String fileName = br.readLine();
+					String userName = br.readLine();
+
+					int rentResult = library.makeRent(userName, fileName);
+
+					if(rentResult == -1)
+						System.out.println("User " + userName + " not found.");
+					else if(rentResult == -2)
+						System.out.println("File " + fileName + " not found.");
+					else if(rentResult == -3)
+						System.out.println("User " + userName + " already has max number of rented files.");
+					else		
+						System.out.println("File rented !");
 				}
 			}
 		}
