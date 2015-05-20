@@ -17,6 +17,7 @@ public class LibraryOrganizer {
 		program.start();
 	}
 
+	//seu lixo
 	public void start(){
 		System.out.println("System starting...");
 		
