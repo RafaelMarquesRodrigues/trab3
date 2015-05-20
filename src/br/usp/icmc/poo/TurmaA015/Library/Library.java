@@ -20,8 +20,9 @@ public class Library implements Organizer {
 
 	//adiciona um novo arquivo na biblioteca
 	public boolean addFile(Rentable r){
-		Optional<Rentable> or = _hasFile(r.getName());
-		if(!or.isPresent())
+		Rentable file = getFile(r.getName());
+		
+		if(file == null)
 			files.add(r);
 		else
 			r.addCopy();
@@ -40,25 +41,28 @@ public class Library implements Organizer {
 			return false;
 	}
 
-	public int makeRent(String name, String str){
-		if(getUser(name) == null)					//não existe a pessoa requisitada
+	public int makeRent(String userName, String fileName){
+		User user = getUser(userName);
+		Rentable rentedFile = getFile(fileName);
+		
+		if(user == null)					//não existe a pessoa requisitada
 			return -1;
-		if(getFile(str) == null)					//não existe o livro requisitado
+		if(rentedFile == null)					//não existe o livro requisitado
 			return -2;
-
-		User user = getUser(name);
+		if(rentedFile.getCopies() == 0)
+			return -3;
 
 		//se o usuário não tiver o maior número de livros permitido pela biblioteca
-		System.out.println(maxFilesRented.get(user.toString()).intValue());
-		System.out.println(user.getFilesQuantity());
-
+		//verificar se o usuario tem permissao 
+		//if(!rentalbe.needsPermission() || user.hasPersmission())
 		if(user.getFilesQuantity() < user.getMaxFiles()){
-			user.rentFile(getFile(str));
+			rentedFile.removeCopy();
+			user.rentFile(rentedFile);
 			
 			return 1;	//ok
 		}
 
-		return -3;//número de livros no máximo
+		return -4;//número de livros no máximo
 	}
 
 	//retorna, se existir, um arquivo com nome "name"
@@ -82,7 +86,8 @@ public class Library implements Organizer {
 		return files
 			.stream()
 			.filter(f -> f.getName().equals(str))
-			.findFirst();
+			//.findFirst();
+			.findAny();
 	}
 
 	//retorna a primeira pessoa com nome == str que encontrar
@@ -90,7 +95,8 @@ public class Library implements Organizer {
 		return users
 			.stream()
 			.filter(u -> u.getName().equals(str))
-			.findFirst();	
+			//.findFirst();
+			.findAny();	
 	}
 
 	public int getUsersSize(){

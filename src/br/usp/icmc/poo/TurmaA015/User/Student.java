@@ -9,9 +9,4 @@ public class Student extends AbstractUser {
 		maxRentTime = 15;
 		maxFiles = 4;
 	}
-
-	public String toString(){
-		return "Student";
-	}
-
 }

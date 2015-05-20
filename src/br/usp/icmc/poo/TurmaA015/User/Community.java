@@ -9,8 +9,4 @@ public class Community extends AbstractUser {
 		maxRentTime = 15;
 		maxFiles = 2;
 	}
-
-	public String toString(){
-		return "Community";
-	}
 }

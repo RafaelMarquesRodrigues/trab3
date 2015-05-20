@@ -68,6 +68,8 @@ public class LibraryOrganizer {
 					else if(rentResult == -2)
 						System.out.println("File " + fileName + " not found.");
 					else if(rentResult == -3)
+						System.out.println("This book is already rented and there is no copies of it available.");
+					else if(rentResult == -4)
 						System.out.println("User " + userName + " already has max number of rented files.");
 					else		
 						System.out.println("File rented !");

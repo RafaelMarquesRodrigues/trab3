@@ -5,4 +5,5 @@ public interface Rentable {
 	String getName();
 	String getType();
 	void addCopy();
+	void removeCopy();
 }
