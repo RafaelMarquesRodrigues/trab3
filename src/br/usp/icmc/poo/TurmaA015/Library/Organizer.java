@@ -21,4 +21,5 @@ public interface Organizer {
 
 	void showUsers();
 	void showFiles();
+	void setDate(int day, int month, int year);
 }

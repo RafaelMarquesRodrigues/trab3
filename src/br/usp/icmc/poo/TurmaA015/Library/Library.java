@@ -6,28 +6,46 @@ import br.usp.icmc.poo.TurmaA015.User.*;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.Map;
-import java.util.HashMap;
+import java.io.PrintWriter;
 import java.io.*;
 import java.util.*;
 
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
+	private int day;
+	private int month;
+	private int year;
+	private String usersLog;
+	private String filesLog;
 
 	public Library() {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
+		usersLog = "users.log";
+		filesLog = "files.log";
+	}
+
+	public void setDate(int day, int month, int year){
+		this.day = day;
+		this.month = month;
+		this.year = year;
+		System.out.println(this.day + " " + this.month + " " + this.year);
 	}
 
 	//adiciona um novo arquivo na biblioteca
 	public boolean addFile(Rentable r){
 		Rentable file = getFile(r.getName());
 		
-		if(file == null)
+		if(file == null){
 			files.add(r);
-		else
+			writeFilesLog(null, r, "new");
+		}
+		else{
+			writeFilesLog(null, r, "copy");
 			file.addCopy();
+		}
+
 		return true;
 	}
 
@@ -37,6 +55,7 @@ public class Library implements Organizer {
 	
 		if(newUser == null){
 			users.add(u);
+			writeUsersLog(u, null, "new");
 			return true;
 		}
 
@@ -59,7 +78,11 @@ public class Library implements Organizer {
 			return -5;
 
 		user.rentFile(rentedFile);
-		rentedFile.removeCopy();			
+		rentedFile.removeCopy();
+		
+		writeUsersLog(user, rentedFile, "rent");			
+		writeFilesLog(user, rentedFile, "rent");			
+		
 		return 1;	//ok
 	}
 
@@ -78,6 +101,10 @@ public class Library implements Organizer {
 		
 		user.refundFile(rentedFile);
 		rentedFile.addCopy();
+
+		writeUsersLog(user, rentedFile, "refund");			
+		writeFilesLog(user, rentedFile, "refund");
+
 		return 1;
 	}
 
@@ -131,5 +158,51 @@ public class Library implements Organizer {
 
 	public int getFilesSize(){
 		return users.size();
+	}
+
+	private String getDate(){
+		return day + "/" + month + "/" + year;
+	}
+
+	private void writeUsersLog(User u, Rentable r, String str){
+		if(str.equals("new"))
+			writeLog("Added " + u.getType().toLowerCase() + " \"" + u.getName() + "\" at " + getDate() + ".", usersLog);
+		else if(str.equals("rent")){
+			writeLog("Rented " + r.getType().toLowerCase() + " \"" + r.getName() + "\" for " + u.getType().toLowerCase() + " " + u.getName() + " at " + 
+				getDate() + ". User has " + u.getFilesQuantity() + " files now.", usersLog);	
+		}
+		else{
+			writeLog(u.getType() + " " + u.getName() + " refunded " + r.getType().toLowerCase() + " \"" + r.getName() + "\" at " + getDate() + 
+														". User has " + u.getFilesQuantity() + " files now.", usersLog);	
+		}
+	}
+
+	private void writeFilesLog(User u, Rentable r, String str){
+		if(str.equals("new"))
+			writeLog("Added new " + r.getType().toLowerCase() + " \"" + r.getName() + "\" at " + getDate() + ".", filesLog);
+		else if(str.equals("copy"))
+			writeLog("Added copy of " + r.getType().toLowerCase() + " \"" + r.getName() + "\" at " + getDate() + ".", filesLog);
+		else if(str.equals("rent")){
+			writeLog(r.getType() + " \"" + r.getName() + "\" was rented by " + u.getType().toLowerCase() + " " + u.getName() + " at " + getDate() + "." +
+																" Copies left: " + r.getCopies() + ".", filesLog);
+		}
+		else{
+			writeLog(r.getType() + " \"" + r.getName() + "\" was refunded by " + u.getType().toLowerCase() + " " + u.getName() + " at " + getDate()
+			 									+ ". Copies available: " + r.getCopies() + ".", filesLog);	
+		}
+	}
+
+	private void writeLog(String str, String filename){
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(new BufferedWriter(new FileWriter(filename, true)));
+			pw.println(str);
+		}
+		catch(IOException e){
+			System.out.println("Error trying to open file");
+		}
+		finally{
+			pw.close();
+		}
 	}
 }

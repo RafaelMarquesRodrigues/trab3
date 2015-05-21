@@ -8,8 +8,9 @@ public interface User {
 	boolean hasDelay(Rentable r);
 	boolean hasFile(Rentable r);
 	void removeDelay(Rentable r);
-	String getName();
 	int getFilesQuantity();
 	int getMaxFiles();
+	String getType();
+	String getName();
 	boolean hasPermission();
 }

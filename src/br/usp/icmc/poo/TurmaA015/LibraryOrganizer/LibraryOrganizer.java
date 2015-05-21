@@ -19,14 +19,21 @@ public class LibraryOrganizer {
 
 	//seu lixo
 	public void start(){
+
 		System.out.println("System starting...");
+		System.out.println("Select the date to start the system: ");
+
+		br = new BufferedReader(new InputStreamReader(System.in));
+		library = new Library();
 		
+		while(!readDate())
+			System.out.println("Please enter a valid date. (xx/xx/xxxx)");
+
 		System.out.println("Initializing library...");
+		
 		String command = "";
 	
 		try {
-			br = new BufferedReader(new InputStreamReader(System.in));
-			library = new Library();
 
 			while(!command.equals("exit")){
 				command = br.readLine();
@@ -68,6 +75,53 @@ public class LibraryOrganizer {
 			System.out.println("Error trying to get user input.");
 		}
 	}
+
+	public boolean readDate(){
+		try {
+			String date;
+			String[] numbers;
+
+			date = br.readLine();
+			numbers = date.split("/");
+
+			if(numbers.length != 3 || numbers[0].length() != 2 || numbers[1].length() != 2 || numbers[2].length() != 4 ||
+													!dateCondition(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2])))
+				return false;
+			
+			library.setDate(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
+
+			return true;
+		
+		}
+		catch(IOException e){
+			System.out.println("Error trying to read date.");
+		}
+
+		return false;
+	}
+	
+	private boolean dateCondition(int day, int month, int year){
+       
+        if (day > 31) return false;
+        if (month > 12) return false;
+        if (month == 4 | month == 6| month == 9| month == 11)
+       		if (day > 30) return false;
+        if (month == 2){
+            if (checkLeapYear(year)){
+                if (day > 29) return false;
+            }
+            else
+                if (day > 28) return false;
+        }
+           
+        return true;
+    }
+       
+    private boolean checkLeapYear(int year){
+        if (year % 4 != 0) return false;
+        else if (year % 100 != 0) return true;
+        else return (year % 400 == 0);
+    }
 
 	public void commandAdd(String[] parts){
 		try{

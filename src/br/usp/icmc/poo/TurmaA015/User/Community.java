@@ -10,4 +10,8 @@ public class Community extends AbstractUser {
 		maxFiles = 2;
 		permission = false;
 	}
+
+	public String getType(){
+		return "Community";
+	}
 }

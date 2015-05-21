@@ -10,4 +10,8 @@ public class Teacher extends AbstractUser {
 		maxFiles = 6;
 		permission = true;
 	}
+
+	public String getType(){
+		return "Teacher";
+	}
 }
