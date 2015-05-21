@@ -22,8 +22,8 @@ public class Library implements Organizer {
 	public Library() {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
-		usersLog = "users.log";
-		filesLog = "files.log";
+		usersLog = "br/usp/icmc/poo/TurmaA015/Library/logs/users.log";
+		filesLog = "br/usp/icmc/poo/TurmaA015/Library/logs/files.log";
 	}
 
 	public void setDate(int day, int month, int year){
