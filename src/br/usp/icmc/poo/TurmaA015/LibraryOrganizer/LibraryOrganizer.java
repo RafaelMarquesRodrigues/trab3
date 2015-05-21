@@ -30,6 +30,7 @@ public class LibraryOrganizer {
 			System.out.println("Please enter a valid date. (xx/xx/xxxx)");
 
 		System.out.println("Initializing library...");
+		library.loadContent();
 		
 		String command = "";
 	
@@ -74,6 +75,8 @@ public class LibraryOrganizer {
 		catch(IOException e){
 			System.out.println("Error trying to get user input.");
 		}
+
+		library.saveContent();
 	}
 
 	public boolean readDate(){
@@ -168,7 +171,7 @@ public class LibraryOrganizer {
 			String fileName = br.readLine();
 			String userName = br.readLine();
 
-			int rentResult = library.makeRent(userName, fileName);
+			int rentResult = library.rentFile(userName, fileName);
 
 			if(rentResult == -1)
 				System.out.println("User " + userName + " not found.");

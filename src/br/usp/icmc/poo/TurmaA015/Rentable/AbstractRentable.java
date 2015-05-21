@@ -5,10 +5,12 @@ abstract class AbstractRentable implements Rentable {
 	protected int quantity;
 	protected String name;
 	protected boolean permission;
+	protected String rentExpirationDate;
 
 	public AbstractRentable(String str){
 		name = str;
 		quantity = 1;
+		rentExpirationDate = null;
 	}
 	
 	public boolean needsPermission(){
@@ -18,6 +20,10 @@ abstract class AbstractRentable implements Rentable {
 	//pode haver mais de um livro igual
 	public int getCopies(){
 		return quantity;
+	}
+
+	public void setRentExpirationDate(String date, int maxRentTime){
+		rentExpirationDate = date;
 	}
 
 	//nome do livro/anotação
@@ -32,6 +38,10 @@ abstract class AbstractRentable implements Rentable {
 
 	public void removeCopy(){
 		quantity--;
+	}
+
+	public String getType(){
+		return "none";
 	}
 
 	public String toString(){

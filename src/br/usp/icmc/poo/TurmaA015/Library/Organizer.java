@@ -13,11 +13,14 @@ public interface Organizer {
 	User getUser(String name);
 	Rentable getFile(String name);
 
-	int makeRent(String name, String str);
+	int rentFile(String name, String str);
 	int refundFile(String name, String str);
 
 	int getUsersSize();
 	int getFilesSize();
+
+	void saveContent();
+	void loadContent();
 
 	void showUsers();
 	void showFiles();

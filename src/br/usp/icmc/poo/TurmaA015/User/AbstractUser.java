@@ -15,14 +15,10 @@ abstract class AbstractUser implements User {
 	protected int maxRentTime;
 	protected String name;
 	protected boolean permission;
-	private Map<Rentable, Integer> delays;
-	private Map<Rentable, Integer> rentTime;
 	private ArrayList<Rentable> ownedFiles;
 
 	public AbstractUser(String str){
 		name = str;
-		delays = new HashMap<Rentable, Integer>();
-		rentTime = new HashMap<Rentable, Integer>();
 		ownedFiles = new ArrayList<Rentable>();
 	}
 
@@ -30,20 +26,16 @@ abstract class AbstractUser implements User {
 		return maxFiles;
 	}
 
+	public int getMaxRentTime(){
+		return maxRentTime;
+	}
+
 	public boolean hasPermission(){
 		return permission;
 	}
 
-	public boolean hasDelay(Rentable r){
-		return delays.containsKey(r);
-	}
-
 	public boolean hasFile(Rentable r){
 		return ownedFiles.contains(r);
-	}
-
-	public void removeDelay(Rentable r){
-		delays.remove(r);
 	}
 
 	//não precisa verificar se a pessoa tem o max de livros, pq a biblioteca sabe quantos livros ele tem
@@ -54,16 +46,6 @@ abstract class AbstractUser implements User {
 
 	public void refundFile(Rentable r){
 		ownedFiles.remove(r);
-		rentTime.remove(r);	//retira o tempo de aluguel do livro
-	}
-
-	//faz o tempo "passar"
-	public boolean increaseRentTime(Rentable r, int time){
-		if(rentTime.containsKey(r)){
-			rentTime.put(r, new Integer((rentTime.get(r)).intValue() + time));
-			return true;
-		}
-		return false;
 	}
 
 	public int getFilesQuantity(){
