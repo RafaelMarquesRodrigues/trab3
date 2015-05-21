@@ -17,13 +17,17 @@ public class Library implements Organizer {
 	private int month;
 	private int year;
 	private String usersLog;
+	private String usersDatas;
 	private String filesLog;
 
 	public Library() {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
-		usersLog = "br/usp/icmc/poo/TurmaA015/Library/logs/users.log";
-		filesLog = "br/usp/icmc/poo/TurmaA015/Library/logs/files.log";
+		String fs = System.getProperty("file.separator");
+		usersLog = "br" + fs + "usp" + fs + "icmc" + fs + "poo" + fs + "TurmaA015" + fs + "Library" + fs + "logs" + fs + "users.log";
+		filesLog = "br" + fs + "usp" + fs + "icmc" + fs + "poo" + fs + "TurmaA015" + fs + "Library" + fs + "logs" + fs + "files.log";
+		System.out.println(usersLog);
+		System.out.println(filesLog);
 	}
 
 	public void setDate(int day, int month, int year){
@@ -111,13 +115,14 @@ public class Library implements Organizer {
 	public void showUsers(){
 		users
 			.stream()
-			.forEach(System.out::println);
+			.forEach(u -> System.out.println(u.getName() + " - (" + u.getFilesQuantity() + ") Rented Files: " + u.getFilesName() + 
+																												" MaxFiles: " + u.getMaxFiles()));
 	}
 
 	public void showFiles(){
 		files
 			.stream()
-			.forEach(System.out::println);
+			.forEach(r -> System.out.println(r.getName() + " - Copies available: " + r.getCopies()));
 	}
 
 	//retorna, se existir, um arquivo com nome "name"
@@ -163,6 +168,12 @@ public class Library implements Organizer {
 	private String getDate(){
 		return day + "/" + month + "/" + year;
 	}
+
+	/*private void writeUsersData(){
+		users
+			.stream()
+			.forEach(u -> writeLog(u.toString(), usersData));
+	}*/
 
 	private void writeUsersLog(User u, Rentable r, String str){
 		if(str.equals("new"))

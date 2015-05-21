@@ -74,12 +74,10 @@ abstract class AbstractUser implements User {
 		return name;
 	}
 
-	public String toString(){
-		String str = ownedFiles
+	public String getFilesName(){
+		return ownedFiles
 			.stream()
 			.map(Rentable::getName)
 			.collect(Collectors.joining(" "));
-
-		return getName() + " - (" + getFilesQuantity() + ") Rented Files: " + str + " MaxFiles: " + maxFiles;	
 	}
 }
