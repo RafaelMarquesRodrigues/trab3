@@ -5,12 +5,14 @@ abstract class AbstractRentable implements Rentable {
 	protected String name;
 	protected boolean permission;
 	protected String rentExpirationDate;
+	protected boolean available;
 	protected int delay;
 
 	public AbstractRentable(String str){
 		name = str;
 		rentExpirationDate = "null";
 		delay = 0;
+		available = true;
 	}
 	
 	public boolean needsPermission(){
@@ -35,6 +37,18 @@ abstract class AbstractRentable implements Rentable {
 
 	public void removeDelay(){
 		delay = 0;
+	}
+
+	public void rent(){
+		available = false;
+	}
+
+	public void refund(){
+		available = true;
+	}
+
+	public boolean isAvailable(){
+		return available;
 	}
 
 	//nome do livro/anotação

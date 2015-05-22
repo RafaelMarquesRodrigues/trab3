@@ -67,14 +67,18 @@ public class LibraryOrganizer {
 				}
 				else if(command.equals("help"))
 					help();
+
 				else if(!command.equals("exit"))
 					System.out.println("Unrecognized command. Try \"help\" to see available commands.");
 
-				System.out.println("\n");
 			}
+		
+
+			System.out.println("\n\n");
+
 		}
 		catch(IOException e){
-			System.out.println("Error trying to get user input.");
+			System.out.println("Error trying to get user command.");
 		}
 
 		library.saveContent();
@@ -109,10 +113,12 @@ public class LibraryOrganizer {
 			if(parts[1].equals("book")){
 				System.out.println("Please enter the name of the book you want to add: ");
 				library.addFile(new Book(br.readLine()));
+				System.out.println("Added new book successfully.");
 			}
 			else if(parts[1].equals("note")){
 				System.out.println("Please enter the name of the note you want to add: ");
 				library.addFile(new Note(br.readLine()));
+				System.out.println("Added new note successfully.");
 			}
 			else if(parts[1].equals("student")){
 				System.out.println("Please enter the name of the user you want to add: ");
@@ -145,8 +151,10 @@ public class LibraryOrganizer {
 
 	public void commandRent(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive and the person: ");
+			System.out.println("Please enter the name of the archive: ");
 			String fileName = br.readLine();
+			
+			System.out.println("Please enter the name of the user: ");
 			String userName = br.readLine();
 
 			int rentResult = library.rentFile(userName, fileName);
@@ -156,11 +164,11 @@ public class LibraryOrganizer {
 			else if(rentResult == -2)
 				System.out.println("File " + fileName + " not found.");
 			else if(rentResult == -3)
-				System.out.println("User " + userName + " already has max number of rented files.");
+				System.out.println("The book " + fileName + " is already rented, and there are no copies available.");
 			else if(rentResult == -4)
-				System.out.println("User " + userName + " doesn't have permission to rent the file " + fileName + ".");
+				System.out.println("User " + userName + " already has max number of rented files.");
 			else if(rentResult == -5)
-				System.out.println("User " + userName + " already has the file " + fileName + ". We do not permit a user to have equal files.");
+				System.out.println("User " + userName + " doesn't have permission to rent the file " + fileName + ".");
 			else if(rentResult == -6)
 				System.out.println("User " + userName + " cant rent the file " + fileName + "because he/she has delays on some files.");
 			else		
@@ -173,8 +181,10 @@ public class LibraryOrganizer {
 
 	public void commandRefund(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive and the person: ");
+			System.out.println("Please enter the name of the archive: ");
 			String fileName = br.readLine();
+
+			System.out.println("Please enter the name of the user: ");
 			String userName = br.readLine();
 
 			int refundResult = library.refundFile(userName, fileName);
@@ -200,19 +210,17 @@ public class LibraryOrganizer {
 			library.showFiles();
 		else if(parts[1].equals("rents"))
 			library.showRents();
+		else
+			System.out.println("Unrecognized type. Supported types are [users] [files] [rents].");
 	}
 
 	public void help(){
-		System.out.println("===========================================================\n");
+		System.out.println("\n===========================================================\n");
 		System.out.println("Library available commands: ");
 		System.out.println("add <type> [book] [note] [student] [teacher] [community]");
 		System.out.println("rent file");
 		System.out.println("refund file");
 		System.out.println("show <type> [uses] [files]");
-		System.out.println("\n===========================================================");
-	}
-
-	public void commandSearch(String[] parts){
-
+		System.out.println("\n===========================================================\n");
 	}
 }

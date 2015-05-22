@@ -12,4 +12,8 @@ public interface Rentable {
 	void setDelay(int n);
 	void removeDelay();
 	int getDelay();
+
+	boolean isAvailable();
+	void rent();
+	void refund();
 }

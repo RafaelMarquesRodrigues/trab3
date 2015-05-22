@@ -8,6 +8,7 @@ import br.usp.icmc.poo.TurmaA015.TimeChecker.*;
 import java.nio.file.*;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Optional;
 import java.io.PrintWriter;
 import java.io.*;
@@ -35,11 +36,11 @@ public class Library implements Organizer {
 		usersLog = p.toString();
 		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
 		filesLog = p.toString();
-		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/logs/users.dat");
+		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
 		usersData = p.toString();;
-		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/logs/files.dat");
+		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
 		filesData = p.toString();
-		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/logs/rents.dat");
+		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/data/rents.csv");
 		rentsData = p.toString();
 		systemLoading = false;
 	}
@@ -48,7 +49,6 @@ public class Library implements Organizer {
 		this.day = day;
 		this.month = month;
 		this.year = year;
-		System.out.println(this.day + " " + this.month + " " + this.year);
 	}
 
 	//adiciona um novo arquivo na biblioteca
@@ -74,22 +74,26 @@ public class Library implements Organizer {
 	public int rentFile(String userName, String fileName){
 		User user = getUser(userName);
 		Rentable rentedFile = getFile(fileName);
-		
+
 		if(user == null)						//não existe a pessoa requisitada
 			return -1;
 		if(rentedFile == null)					//não existe o livro requisitado
 			return -2;
-		if(user.getFilesQuantity() >= user.getMaxFiles())
+		
+		rentedFile = getAvailableFile(fileName);
+
+		if(rentedFile == null)					//livro indisponível
 			return -3;
-		if(rentedFile.needsPermission() && !user.hasPermission())
+		if(user.getFilesQuantity() >= user.getMaxFiles())
 			return -4;
-		if(user.hasFile(rentedFile))
+		if(rentedFile.needsPermission() && !user.hasPermission())
 			return -5;
 		if(!systemLoading && user.isBanned())		//se o sistema estiver recuperando os dados do arquivo temos que adicionar os livros mesmo que o usuario 
 			return -6;								//tenha um delay
 
 		user.rentFile(rentedFile);
 		rentedFile.setRentExpirationDate(tc.setDate(getDate(), user.getMaxRentTime()));
+		rentedFile.rent();
 
 		System.out.println("Rent date expires in " + tc.setDate(getDate(), user.getMaxRentTime()));
 		
@@ -111,11 +115,15 @@ public class Library implements Organizer {
 			return -1;
 		if(rentedFile == null)					//não existe o livro requisitado
 			return -2;
+
+		rentedFile = getRentedFile(fileName, userName);
+
 		if(!user.hasFile(rentedFile))
 			return -3;
 		
 		user.refundFile(rentedFile);
 		rentedFile.setRentExpirationDate("null");
+		rentedFile.refund();
 		
 		if(rentedFile.getDelay() > 0){
 			user.setBan(rentedFile.getDelay());
@@ -129,16 +137,47 @@ public class Library implements Organizer {
 	}
 
 	public void showUsers(){
-		users
-			.stream()
-			.forEach(u -> System.out.println(u.getName() + " - (" + u.getFilesQuantity() + ") Rented Files: " + u.getFilesName() + 
-																												" MaxFiles: " + u.getMaxFiles()));
+		for(User user : users){
+			System.out.println("\n================================================\n");
+			System.out.println(user.getType() + " " + user.getName());
+
+			if(user.getFilesQuantity() > 0){
+				System.out.println("Rented books for this user: \n");
+
+				for(Rentable r : files){
+					if(user.hasFile(r)){
+						System.out.print(r.getType() + " " + r.getName());
+						
+						if(r.getDelay() != 0)
+							System.out.print(" (Please refund this book to the library as soon as possible.)");
+					
+					System.out.print("\n");
+					}
+				}
+		/*		files
+					.stream()
+					.filter(f -> {
+						System.out.println("Filtering " + f.getName());
+						return user.hasFile(f) == true;
+					})
+					.forEach(f -> System.out.println(f.getType() + " " + f.getName()));
+		*/
+			}
+			else
+				System.out.println("This user doens't have any book rented.");
+		}
 	}
 
 	public void showFiles(){
-		files
+		Map<String, Long> filesMap = files 
+									.stream()
+									.collect(Collectors.groupingBy(Rentable::getName, Collectors.mapping(Rentable::getName, Collectors.counting())));
+
+		filesMap
+		.forEach((k, v) -> System.out.println(k + " " + v));
+	/*	files
 			.stream()
-			.forEach(r -> System.out.println(r.getType() + ": " + r.getName()));
+			.forEach(r -> System.out.println(r.getType() + ": " + r.getName()));*/
 	}
 
 	public void showRents(){
@@ -158,7 +197,7 @@ public class Library implements Organizer {
 			br.close();
 		}
 		catch(FileNotFoundException e){
-			System.out.println("Found no content to load.");
+			System.out.println("Found no rents file to load.");
 		}
 		catch(IOException e){
 			System.out.println("Error trying to load content.");
@@ -187,6 +226,24 @@ public class Library implements Organizer {
 		}
 	}
 */
+	public Rentable getAvailableFile(String name){
+		return files
+			.stream()
+			.filter(f -> f.getName().equals(name) && f.isAvailable())
+			.findAny()
+			.orElse(null);	
+	}
+
+	public Rentable getRentedFile(String fileName, String userName){
+		User u = getUser(userName);
+
+		return files
+			.stream()
+			.filter(f -> f.getName().equals(fileName) && u.hasFile(f))
+			.findAny()
+			.orElse(null);	
+	}
+
 	//retorna, se existir, um arquivo com nome "name"
 	public Rentable getFile(String name){
 		return _hasFile(name).orElse(null);
@@ -408,12 +465,10 @@ public class Library implements Organizer {
 		try {
 			pw = new PrintWriter(new BufferedWriter(new FileWriter(filename, type)));
 			pw.println(str);
+			pw.close();
 		}
 		catch(IOException e){
 			System.out.println("Error trying to open file");
-		}
-		finally{
-			pw.close();
 		}
 	}
 }

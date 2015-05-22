@@ -33,7 +33,6 @@ public class TimeChecker {
                         dayAmount -= 29;
  
                         month++;
-                       
                     }
                 }
                 else{
@@ -41,7 +40,6 @@ public class TimeChecker {
                         dayAmount -= 28;
                        
                         month++;
-                       
                     }
                 }
             }
