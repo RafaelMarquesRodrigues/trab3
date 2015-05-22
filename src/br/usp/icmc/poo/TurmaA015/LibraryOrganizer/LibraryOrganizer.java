@@ -4,6 +4,7 @@ package br.usp.icmc.poo.TurmaA015.LibraryOrganizer;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 import br.usp.icmc.poo.TurmaA015.Library.*;
+import br.usp.icmc.poo.TurmaA015.TimeChecker.*;
 
 import java.io.*;
 import java.util.*;
@@ -17,15 +18,15 @@ public class LibraryOrganizer {
 		program.start();
 	}
 
-	//seu lixo
 	public void start(){
 
 		System.out.println("System starting...");
 		System.out.println("Select the date to start the system: ");
 
 		br = new BufferedReader(new InputStreamReader(System.in));
+
 		library = new Library();
-		
+
 		while(!readDate())
 			System.out.println("Please enter a valid date. (xx/xx/xxxx)");
 
@@ -83,12 +84,12 @@ public class LibraryOrganizer {
 		try {
 			String date;
 			String[] numbers;
+			TimeChecker t = new TimeChecker();
 
 			date = br.readLine();
 			numbers = date.split("/");
 
-			if(numbers.length != 3 || numbers[0].length() != 2 || numbers[1].length() != 2 || numbers[2].length() != 4 ||
-													!dateCondition(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2])))
+			if(numbers.length != 3 || !t.dateCondition(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2])))
 				return false;
 			
 			library.setDate(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
@@ -102,29 +103,6 @@ public class LibraryOrganizer {
 
 		return false;
 	}
-	
-	private boolean dateCondition(int day, int month, int year){
-       
-        if (day > 31) return false;
-        if (month > 12) return false;
-        if (month == 4 | month == 6| month == 9| month == 11)
-       		if (day > 30) return false;
-        if (month == 2){
-            if (checkLeapYear(year)){
-                if (day > 29) return false;
-            }
-            else
-                if (day > 28) return false;
-        }
-           
-        return true;
-    }
-       
-    private boolean checkLeapYear(int year){
-        if (year % 4 != 0) return false;
-        else if (year % 100 != 0) return true;
-        else return (year % 400 == 0);
-    }
 
 	public void commandAdd(String[] parts){
 		try{
@@ -183,6 +161,8 @@ public class LibraryOrganizer {
 				System.out.println("User " + userName + " already has max number of rented files.");
 			else if(rentResult == -5)
 				System.out.println("User " + userName + " doesn't have permission to rent the file " + fileName + ".");
+			else if(rentResult == -6)
+				System.out.println("User " + userName + " already has the file " + fileName + ". We do not permit a user to have equal files.");
 			else		
 				System.out.println("File rented !");
 		}
@@ -218,6 +198,8 @@ public class LibraryOrganizer {
 			library.showUsers();
 		else if(parts[1].equals("files"))
 			library.showFiles();
+		else if(parts[1].equals("rents"))
+			library.showRents();
 	}
 
 	public void help(){

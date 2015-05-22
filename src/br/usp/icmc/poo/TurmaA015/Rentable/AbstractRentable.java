@@ -10,7 +10,7 @@ abstract class AbstractRentable implements Rentable {
 	public AbstractRentable(String str){
 		name = str;
 		quantity = 1;
-		rentExpirationDate = null;
+		rentExpirationDate = "null";
 	}
 	
 	public boolean needsPermission(){
@@ -22,8 +22,12 @@ abstract class AbstractRentable implements Rentable {
 		return quantity;
 	}
 
-	public void setRentExpirationDate(String date, int maxRentTime){
+	public void setRentExpirationDate(String date){
 		rentExpirationDate = date;
+	}
+
+	public String getRentExpirationDate(){
+		return rentExpirationDate;
 	}
 
 	//nome do livro/anotação

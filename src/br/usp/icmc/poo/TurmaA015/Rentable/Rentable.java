@@ -10,7 +10,8 @@ public interface Rentable {
 	void addCopy();
 	void removeCopy();
 	
-	void setRentExpirationDate(String date, int masRentTime);
+	void setRentExpirationDate(String date);
+	String getRentExpirationDate();
 	//void setDelay();
 	//void removeDelay();
 }
