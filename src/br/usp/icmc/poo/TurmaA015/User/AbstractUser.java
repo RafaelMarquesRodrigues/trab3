@@ -15,11 +15,13 @@ abstract class AbstractUser implements User {
 	protected int maxRentTime;
 	protected String name;
 	protected boolean permission;
+	protected int ban;
 	private ArrayList<Rentable> ownedFiles;
 
 	public AbstractUser(String str){
 		name = str;
 		ownedFiles = new ArrayList<Rentable>();
+		ban = 0;
 	}
 
 	public int getMaxFiles(){
@@ -36,6 +38,18 @@ abstract class AbstractUser implements User {
 
 	public boolean hasFile(Rentable r){
 		return ownedFiles.contains(r);
+	}
+
+	public void setBan(int d){
+		ban = d;
+	}
+
+	public int getBanTime(){
+		return ban;
+	}
+
+	public boolean isBanned(){
+		return ban == 0 ? false : true;
 	}
 
 	//não precisa verificar se a pessoa tem o max de livros, pq a biblioteca sabe quantos livros ele tem

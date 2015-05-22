@@ -6,12 +6,10 @@ public interface Rentable {
 	
 	boolean needsPermission();
 	
-	int getCopies();
-	void addCopy();
-	void removeCopy();
-	
 	void setRentExpirationDate(String date);
 	String getRentExpirationDate();
-	//void setDelay();
-	//void removeDelay();
+	
+	void setDelay(int n);
+	void removeDelay();
+	int getDelay();
 }

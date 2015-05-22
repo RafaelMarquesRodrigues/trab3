@@ -2,24 +2,19 @@ package br.usp.icmc.poo.TurmaA015.Rentable;
 
 //classe criada para implementar métodos que são comuns para todos os tipos de objeto "alugáveis"
 abstract class AbstractRentable implements Rentable {
-	protected int quantity;
 	protected String name;
 	protected boolean permission;
 	protected String rentExpirationDate;
+	protected int delay;
 
 	public AbstractRentable(String str){
 		name = str;
-		quantity = 1;
 		rentExpirationDate = "null";
+		delay = 0;
 	}
 	
 	public boolean needsPermission(){
 		return permission;
-	}
-
-	//pode haver mais de um livro igual
-	public int getCopies(){
-		return quantity;
 	}
 
 	public void setRentExpirationDate(String date){
@@ -30,18 +25,21 @@ abstract class AbstractRentable implements Rentable {
 		return rentExpirationDate;
 	}
 
+	public void setDelay(int n){
+		delay = n;
+	}
+
+	public int getDelay(){
+		return delay;
+	}
+
+	public void removeDelay(){
+		delay = 0;
+	}
+
 	//nome do livro/anotação
 	public String getName(){
 		return name;
-	}
-
-	//caso queira se adicionar um livro com mesmo nome, simplesmente acrescentamos a quantidade de cópias que o livro tem
-	public void addCopy(){
-		quantity++;
-	}
-
-	public void removeCopy(){
-		quantity--;
 	}
 
 	public String getType(){
@@ -49,6 +47,6 @@ abstract class AbstractRentable implements Rentable {
 	}
 
 	public String toString(){
-		return name + " - Copies available: " + quantity;
+		return name;
 	}
 }

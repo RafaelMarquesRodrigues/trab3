@@ -156,13 +156,13 @@ public class LibraryOrganizer {
 			else if(rentResult == -2)
 				System.out.println("File " + fileName + " not found.");
 			else if(rentResult == -3)
-				System.out.println("This book is already rented and there is no copies of it available.");
-			else if(rentResult == -4)
 				System.out.println("User " + userName + " already has max number of rented files.");
-			else if(rentResult == -5)
+			else if(rentResult == -4)
 				System.out.println("User " + userName + " doesn't have permission to rent the file " + fileName + ".");
-			else if(rentResult == -6)
+			else if(rentResult == -5)
 				System.out.println("User " + userName + " already has the file " + fileName + ". We do not permit a user to have equal files.");
+			else if(rentResult == -6)
+				System.out.println("User " + userName + " cant rent the file " + fileName + "because he/she has delays on some files.");
 			else		
 				System.out.println("File rented !");
 		}

@@ -6,98 +6,55 @@ import static java.util.Date.UTC;
 
 public class TimeChecker {
 
-    @SuppressWarnings( "deprecation" )
-	public int calculateDifference(String initialStringDate, String finalStringDate) {
-     
-            String[] initialDateNumbers;
-            String[] finalDateNumbers;
-            Date initialDate;
-            Date finalDate;
-            float difference;
- 
+    public String setDate(String date, int dayAmount){
+        String[] parts = date.split("/");
+        int day = Integer.parseInt(parts[0]);
+        int month = Integer.parseInt(parts[1]);
+        int year  = Integer.parseInt(parts[2]);
+   
+   
+        while(checkDate(day, month, year, dayAmount)){
            
-            initialDateNumbers = initialStringDate.split("/");
-            finalDateNumbers = finalStringDate.split("/");
-           
-            initialDate = new Date (Integer.parseInt(initialDateNumbers[0]) - 1900,
-                                            Integer.parseInt(initialDateNumbers[1]),
-                                            Integer.parseInt(initialDateNumbers[2]));
-           
-            finalDate = new Date (Integer.parseInt(finalDateNumbers[0]) - 1900,
-                                            Integer.parseInt(finalDateNumbers[1]),
-                                            Integer.parseInt(finalDateNumbers[2]));
-           
-            difference = UTC (initialDate.getYear(),
-                                initialDate.getMonth(),
-                                initialDate.getDate(),
-                                initialDate.getDay(),
-                                initialDate.getHours(),
-                                initialDate.getSeconds())
-                   
-                   
-                                          -
-                   
-                         UTC (finalDate.getYear(),
-                                finalDate.getMonth(),
-                                finalDate.getDate(),
-                                finalDate.getDay(),
-                                finalDate.getHours(),
-                                finalDate.getSeconds());
-           
- 
-            return (int) difference/86400000; //transformar de milisegundos para dias
-    }   //valores positivos representam praso restante, valores negativos representam atraso
-
-    @SuppressWarnings( "deprecation" )
-    public String setDate(String initialStringDate, int dayAmount){   //muda esse nome
-           
-        String[] initialDateNumbers;
-        initialDateNumbers = initialStringDate.split("/");
-           
-        Date date = new Date (Integer.parseInt(initialDateNumbers[0]) - 1900,
-                                            Integer.parseInt(initialDateNumbers[1]),
-                                            Integer.parseInt(initialDateNumbers[2]));
-           
-        while(checkDate(date, dayAmount)){  
-            if (date.getMonth() == 4 | date.getMonth() == 6|
-                    date.getMonth() == 9| date.getMonth() == 11){
-                if (dayAmount + date.getDate() > 30){
+         
+         if (month == 4 | month == 6|
+                    month == 9| month == 11){
+                if (dayAmount + day > 30){
                     dayAmount -= 30;
  
-                    date.setMonth(date.getMonth() + 1);
+                    month++;
                    
                 }
             }
  
-            else if (date.getMonth() == 2){
+            else if (month == 2){
  
-                if (checkLeapYear(date.getYear() + 1900)){
-                    if (dayAmount + date.getDate() > 29){
+                if (checkLeapYear(year)){
+                    if (dayAmount + year > 29){
                         dayAmount -= 29;
  
-                        date.setMonth(date.getMonth() + 1);
+                        month++;
                        
                     }
                 }
                 else{
-                    if (dayAmount + date.getDate() > 28){
+                    if (dayAmount + day > 28){
                         dayAmount -= 28;
                        
-                        date.setMonth(date.getMonth() + 1);
+                        month++;
                        
                     }
                 }
             }
  
             else {
-                if (dayAmount + date.getDate() > 31){
+                if (dayAmount + day > 31){
                         dayAmount -= 31;
-                        if (date.getMonth() == 12) {
-                            date.setYear(date.getYear() + 1);
-                            date.setMonth(1);
+                        if (month == 12) {
+                            year++;
+                            month = 1;
                         }
                         else {
-                            date.setMonth(date.getMonth() + 1);
+                            month++;
                         }
                 }
  
@@ -106,11 +63,96 @@ public class TimeChecker {
            
         }
  
-        date.setDate(date.getDate() + dayAmount);
+            day+=dayAmount;
  
-        return (date.getDate() + "/" + date.getMonth() + "/" + (date.getYear() + 1900));
+            return (day + "/" + month + "/" + year);
+   
     }
-    
+
+    public int dateDifference(String dateA, String dateB){
+        int dayIni, dayFin, monthIni, monthFin, yearIni, yearFin;
+        int total = 0;
+        
+        String[] parts = dateA.split("/");
+
+        dayIni = Integer.parseInt(parts[0]);
+        monthIni = Integer.parseInt(parts[1]);
+        yearIni = Integer.parseInt(parts[2]);
+
+        parts = dateB.split("/");
+
+        dayFin = Integer.parseInt(parts[0]);
+        monthFin = Integer.parseInt(parts[1]);
+        yearFin = Integer.parseInt(parts[2]);
+
+        
+        total += (int) yearIni*365;
+        total -= (int) yearFin*365;
+        total += dayIni;
+        total -= dayFin;
+       
+       
+        while (monthIni != 1){
+       
+            if (monthIni == 2 | monthIni == 4 | monthIni == 6 |
+                      monthIni == 8 | monthIni == 9 | monthIni == 11)
+                 total += 31;
+           
+            else if (monthIni == 3)
+                total += 28;
+           
+            else if (monthIni != 1)
+                total += 30;
+ 
+            monthIni--;
+        }
+       
+        while (monthFin != 1){
+       
+        if (monthFin == 2 | monthFin == 4 | monthFin == 6 |
+                      monthFin == 8 | monthFin == 9 | monthFin == 11)
+                 total -= 31;
+           
+            else if (monthFin == 3)
+                total -= 28;
+           
+            else if (monthFin != 1)
+                total -= 30;
+       
+            monthFin--;
+        }
+             
+        total+=yearIni/4;
+        total-=yearIni/100;
+        total+=yearIni/400;
+       
+        total-=yearFin/4;
+        total+=yearFin/100;
+        total-=yearFin/400;
+         
+        return total;
+    }
+   
+    public boolean checkDate(int day, int month, int year, int dayAmount){ // Serve para checar se o while do prazoFinal
+   
+        if (dayAmount > 31) return true;
+       
+        if (month == 4 | month == 6|
+                            month == 9| month == 11)
+                if (dayAmount > 30) return true;
+       
+        if (month == 2){
+            if (checkLeapYear(year)){
+                if (dayAmount > 29) return true;
+            }
+            else
+                if (dayAmount > 28) return true;
+        }
+       
+        return false;
+   
+    }
+   
     public boolean dateCondition(int day, int month, int year){
        
         if (day > 31) return false;
@@ -134,26 +176,5 @@ public class TimeChecker {
         if (year % 4 != 0) return false;
         else if (year % 100 != 0) return true;
         else return (year % 400 == 0);
-    }
-    
-    @SuppressWarnings( "deprecation" )         
-    public boolean checkDate(Date date, int dayAmount){ // Serve para checar se o while do prazoFinal
-   
-        if (dayAmount > 31) return true;
-       
-        if (date.getMonth() == 4 | date.getMonth() == 6|
-                            date.getMonth() == 9| date.getMonth() == 11)
-                if (dayAmount > 30) return true;
-       
-        if (date.getMonth() == 2){
-            if (checkLeapYear(date.getYear())){
-                if (dayAmount > 29) return true;
-            }
-            else
-                if (dayAmount > 28) return true;
-        }
-       
-        return false;
-   
     }
 }

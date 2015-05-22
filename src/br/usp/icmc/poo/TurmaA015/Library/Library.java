@@ -25,6 +25,7 @@ public class Library implements Organizer {
 	private String filesData;
 	private String rentsData;
 	private TimeChecker tc;
+	private boolean systemLoading;
 
 	public Library() {
 		users = new ArrayList<User>();
@@ -40,6 +41,7 @@ public class Library implements Organizer {
 		filesData = p.toString();
 		p = Paths.get("br/usp/icmc/poo/TurmaA015/Library/logs/rents.dat");
 		rentsData = p.toString();
+		systemLoading = false;
 	}
 
 	public void setDate(int day, int month, int year){
@@ -51,17 +53,8 @@ public class Library implements Organizer {
 
 	//adiciona um novo arquivo na biblioteca
 	public boolean addFile(Rentable r){
-		Rentable file = getFile(r.getName());
-		
-		if(file == null){
-			files.add(r);
-			writeFilesLog(null, r, "new");
-		}
-		else{
-			writeFilesLog(null, r, "copy");
-			file.addCopy();
-		}
-
+		files.add(r);
+		writeFilesLog(null, r, "new");
 		return true;
 	}
 
@@ -86,22 +79,26 @@ public class Library implements Organizer {
 			return -1;
 		if(rentedFile == null)					//não existe o livro requisitado
 			return -2;
-		if(rentedFile.getCopies() == 0)			//o livro existe mas está alugado
-			return -3;
 		if(user.getFilesQuantity() >= user.getMaxFiles())
-			return -4;
+			return -3;
 		if(rentedFile.needsPermission() && !user.hasPermission())
-			return -5;
+			return -4;
 		if(user.hasFile(rentedFile))
-			return -6;
+			return -5;
+		if(!systemLoading && user.isBanned())		//se o sistema estiver recuperando os dados do arquivo temos que adicionar os livros mesmo que o usuario 
+			return -6;								//tenha um delay
 
 		user.rentFile(rentedFile);
 		rentedFile.setRentExpirationDate(tc.setDate(getDate(), user.getMaxRentTime()));
+
 		System.out.println("Rent date expires in " + tc.setDate(getDate(), user.getMaxRentTime()));
-		rentedFile.removeCopy();
 		
 		writeUsersLog(user, rentedFile, "rent");			
-		writeFilesLog(user, rentedFile, "rent");			
+		writeFilesLog(user, rentedFile, "rent");
+
+		if(!systemLoading)
+			writeLog(user.getType() + "," + user.getName() + "," + rentedFile.getType() + "," + rentedFile.getName() + "," + getDate() + "," + 
+										tc.setDate(getDate(), user.getMaxRentTime()), rentsData, true);
 		
 		return 1;	//ok
 	}
@@ -119,7 +116,11 @@ public class Library implements Organizer {
 		
 		user.refundFile(rentedFile);
 		rentedFile.setRentExpirationDate("null");
-		rentedFile.addCopy();
+		
+		if(rentedFile.getDelay() > 0){
+			user.setBan(rentedFile.getDelay());
+			rentedFile.removeDelay();
+		}
 
 		writeUsersLog(user, rentedFile, "refund");			
 		writeFilesLog(user, rentedFile, "refund");
@@ -137,10 +138,33 @@ public class Library implements Organizer {
 	public void showFiles(){
 		files
 			.stream()
-			.forEach(r -> System.out.println(r.getName() + " - Copies available: " + r.getCopies()));
+			.forEach(r -> System.out.println(r.getType() + ": " + r.getName()));
 	}
 
 	public void showRents(){
+		BufferedReader br;
+
+		try{
+			String[] content = null;
+			String input;
+
+			br = new BufferedReader(new FileReader(rentsData));
+
+			while((input = br.readLine()) != null){
+				content = input.split(",");
+				System.out.println(content[0] + " " + content[1] + " " + content[2] + " " + content[3] + " " + content[4] + " " + content[5]);
+			}
+
+			br.close();
+		}
+		catch(FileNotFoundException e){
+			System.out.println("Found no content to load.");
+		}
+		catch(IOException e){
+			System.out.println("Error trying to load content.");
+		}
+	}
+	/*public void showRents(){
 		String str;
 		List<User> usersList;
 
@@ -148,7 +172,6 @@ public class Library implements Organizer {
 			usersList = users
 					.stream()
 					.filter(u -> u.hasFile(r))
-					//.peek(System.out::println)
 					.collect(Collectors.toList());
 
 			for(User user : usersList){		
@@ -157,13 +180,13 @@ public class Library implements Organizer {
 				str += user.getName() + " ";
 				str += r.getType() + " ";
 				str += r.getName() + " ";
-				str += "rentDate";
+				str += r.getRentExpirationDate();
 
 				System.out.println(str);
 			}
 		}
 	}
-
+*/
 	//retorna, se existir, um arquivo com nome "name"
 	public Rentable getFile(String name){
 		return _hasFile(name).orElse(null);
@@ -209,6 +232,9 @@ public class Library implements Organizer {
 		String input = null;
 		BufferedReader br = null;
 
+		systemLoading = true;		//faz com que os livros adicionados na operação de load não sejam guardados novamente no arquivos de rents
+									//e evitar que o arquivo seja refeito desnecessariamente
+
 		try {
 
 			br = new BufferedReader(new FileReader(usersData));
@@ -232,27 +258,37 @@ public class Library implements Organizer {
 				content = input.split(",");
 
 				if(content[1].equals("Book")){
-					for(int i = 0; i < Integer.parseInt(content[3]); i++)
-						addFile(new Book(content[2]));
+					Book book = new Book(content[2]);
+					addFile(book);
 					
 					if(!content[0].equals("none")){
-						Book book = new Book(content[2]);
-						book.setRentExpirationDate(content[4]);
-						addFile(book);
+						book.setRentExpirationDate(content[3]);
 						rentFile(content[0], content[2]);
+
+						if(tc.dateDifference(getDate(), content[3]) > 0){
+							book.setDelay(tc.dateDifference(getDate(), content[3]));
+							System.out.println("delay on book " + book.getName() + " " + tc.dateDifference(getDate(), content[3]));
+							getUser(content[0]).setBan(tc.dateDifference(getDate(), content[3]));
+						}
 					}
+
 				}
 				else if(content[1].equals("Note")){
-					for(int i = 0; i < Integer.parseInt(content[3]); i++)
-						addFile(new Note(content[2]));
-					
+					Note note = new Note(content[2]);
+					addFile(note);
+
 					//podemos juntar as linhas do set expiration date com add file e new note
 					if(!content[0].equals("none")){
-						Note note = new Note(content[2]);
-						addFile(note);
-						note.setRentExpirationDate(content[4]);
+						note.setRentExpirationDate(content[3]);
 						rentFile(content[0], content[2]);
+	
+						if(tc.dateDifference(getDate(), content[3]) > 0){
+							note.setDelay(tc.dateDifference(getDate(), content[3]));
+							System.out.println("delay on note " + note.getName() + " " + tc.dateDifference(getDate(), content[3]));
+							getUser(content[0]).setBan(tc.dateDifference(getDate(), content[3]));
+						}
 					}
+
 				}
 			}
 
@@ -264,12 +300,14 @@ public class Library implements Organizer {
 		catch(IOException e){
 			System.out.println("Error trying to load content.");
 		}
+
+		systemLoading = false;
 	}
 
 	public void saveContent(){
 		writeUsersData();
 		writeFilesData();
-		writeRentsData();
+	//	writeRentsData();
 	}
 
 	private void writeUsersData(){
@@ -280,7 +318,8 @@ public class Library implements Organizer {
 		for(User u : users){
 			data = "";
 			data += u.getType() + separator;
-			data += u.getName();
+			data += u.getName() + separator;
+			data += u.getBanTime();
 
 			writeLog(data, usersData, type);				//escreve o tipo e o nome em um arquivo csv
 			if(!type) type = true;
@@ -302,7 +341,6 @@ public class Library implements Organizer {
 						.orElse("none") + separator;
 			data += r.getType() + separator;
 			data += r.getName() + separator;
-			data += r.getCopies() + separator;
 			data += r.getRentExpirationDate();
 
 			writeLog(data, filesData, type);				//escreve o tipo e o nome em um arquivo csv
@@ -310,7 +348,7 @@ public class Library implements Organizer {
 		}
 	}
 
-	//escreve em um arquivo todos os empréstimos feitos
+/*	//escreve em um arquivo todos os empréstimos feitos
 	private void writeRentsData(){
 		String separator = ",";
 		String data = "";
@@ -336,7 +374,7 @@ public class Library implements Organizer {
 			}
 		}
 	}
-
+*/
 	private void writeUsersLog(User u, Rentable r, String str){
 		if(str.equals("new"))
 			writeLog("Added " + u.getType().toLowerCase() + " \"" + u.getName() + "\" at " + getDate() + ".", usersLog, true);
@@ -356,12 +394,12 @@ public class Library implements Organizer {
 		else if(str.equals("copy"))
 			writeLog("Added copy of " + r.getType().toLowerCase() + " \"" + r.getName() + "\" at " + getDate() + ".", filesLog, true);
 		else if(str.equals("rent")){
-			writeLog(r.getType() + " \"" + r.getName() + "\" was rented by " + u.getType().toLowerCase() + " " + u.getName() + " at " + getDate() + "." +
-																" Copies left: " + r.getCopies() + ".", filesLog, true);
+			writeLog(r.getType() + " \"" + r.getName() + "\" was rented by " + u.getType().toLowerCase() + " " + u.getName() + " at " + getDate() + "."
+																																	, filesLog, true);
 		}
 		else{
 			writeLog(r.getType() + " \"" + r.getName() + "\" was refunded by " + u.getType().toLowerCase() + " " + u.getName() + " at " + getDate()
-			 									+ ". Copies available: " + r.getCopies() + ".", filesLog, true);	
+			 																										+ ".", filesLog, true);	
 		}
 	}
 

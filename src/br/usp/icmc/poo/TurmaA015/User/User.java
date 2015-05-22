@@ -16,4 +16,8 @@ public interface User {
 	String getType();
 	String getName();
 	String getFilesName();
+
+	void setBan(int d);
+	int getBanTime();
+	boolean isBanned();
 }
