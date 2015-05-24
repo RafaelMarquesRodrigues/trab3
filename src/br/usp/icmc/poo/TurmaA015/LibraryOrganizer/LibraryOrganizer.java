@@ -113,31 +113,31 @@ public class LibraryOrganizer {
 			if(parts[1].equals("book")){
 				System.out.println("Please enter the name of the book you want to add: ");
 				library.addFile(new Book(br.readLine()));
-				System.out.println("Added new book successfully.");
+				System.out.println("Added new book successfully.\n");
 			}
 			else if(parts[1].equals("note")){
 				System.out.println("Please enter the name of the note you want to add: ");
 				library.addFile(new Note(br.readLine()));
-				System.out.println("Added new note successfully.");
+				System.out.println("Added new note successfully.\n");
 			}
 			else if(parts[1].equals("student")){
 				System.out.println("Please enter the name of the user you want to add: ");
 				if(library.addUser(new Student(br.readLine())))
-					System.out.println("Added new user successfully.");
+					System.out.println("Added new user successfully.\n");
 				else
 					System.out.println("Theres already a student with this name !");
 			}
 			else if(parts[1].equals("teacher")){
 				System.out.println("Please enter the name of the user you want to add: ");
 				if(library.addUser(new Teacher(br.readLine())))
-					System.out.println("Added new user successfully");
+					System.out.println("Added new user successfully"\n);
 				else
 					System.out.println("Theres already a teacher with this name !");
 			}
 			else if(parts[1].equals("community")){
 				System.out.println("Please enter the name of the user you want to add: ");
 				if(library.addUser(new Community(br.readLine())))
-					System.out.println("Added new user successfully.");
+					System.out.println("Added new user successfully.\n");
 				else
 					System.out.println("Theres already a community with this name !");
 			}

@@ -166,6 +166,8 @@ public class Library implements Organizer {
 			else
 				System.out.println("This user doens't have any book rented.");
 		}
+
+		System.out.println("\n================================================\n");
 	}
 
 	public void showFiles(){
@@ -180,7 +182,7 @@ public class Library implements Organizer {
 			.forEach(r -> System.out.println(r.getType() + ": " + r.getName()));*/
 	}
 
-	public void showRents(){
+	/*public void showRents(){
 		BufferedReader br;
 
 		try{
@@ -203,7 +205,8 @@ public class Library implements Organizer {
 			System.out.println("Error trying to load content.");
 		}
 	}
-	/*public void showRents(){
+	*/
+	public void showRents(){
 		String str;
 		List<User> usersList;
 
@@ -225,7 +228,7 @@ public class Library implements Organizer {
 			}
 		}
 	}
-*/
+
 	public Rentable getAvailableFile(String name){
 		return files
 			.stream()
