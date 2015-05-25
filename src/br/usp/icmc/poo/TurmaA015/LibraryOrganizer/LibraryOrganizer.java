@@ -4,7 +4,6 @@ package br.usp.icmc.poo.TurmaA015.LibraryOrganizer;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 import br.usp.icmc.poo.TurmaA015.Library.*;
-import br.usp.icmc.poo.TurmaA015.TimeChecker.*;
 
 import java.io.*;
 import java.util.*;
@@ -88,12 +87,11 @@ public class LibraryOrganizer {
 		try {
 			String date;
 			String[] numbers;
-			TimeChecker t = new TimeChecker();
 
 			date = br.readLine();
 			numbers = date.split("/");
 
-			if(numbers.length != 3 || !t.dateCondition(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2])))
+			if(numbers.length != 3)
 				return false;
 			
 			library.setDate(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
@@ -130,7 +128,7 @@ public class LibraryOrganizer {
 			else if(parts[1].equals("teacher")){
 				System.out.println("Please enter the name of the user you want to add: ");
 				if(library.addUser(new Teacher(br.readLine())))
-					System.out.println("Added new user successfully"\n);
+					System.out.println("Added new user successfully\n");
 				else
 					System.out.println("Theres already a teacher with this name !");
 			}
@@ -170,7 +168,7 @@ public class LibraryOrganizer {
 			else if(rentResult == -5)
 				System.out.println("User " + userName + " doesn't have permission to rent the file " + fileName + ".");
 			else if(rentResult == -6)
-				System.out.println("User " + userName + " cant rent the file " + fileName + "because he/she has delays on some files.");
+				System.out.println("User " + userName + " cant rent the file " + fileName + " because he/she is banned.");
 			else		
 				System.out.println("File rented !");
 		}

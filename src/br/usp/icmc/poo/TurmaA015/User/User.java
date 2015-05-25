@@ -2,6 +2,9 @@ package br.usp.icmc.poo.TurmaA015.User;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 public interface User {
 	void rentFile(Rentable r);
 	void refundFile(Rentable r);
@@ -17,7 +20,7 @@ public interface User {
 	String getName();
 	String getFilesName();
 
-	void setBan(int d);
-	int getBanTime();
+	void setBan(LocalDate date);
+	LocalDate getBanTime();
 	boolean isBanned();
 }

@@ -1,16 +1,19 @@
 package br.usp.icmc.poo.TurmaA015.Rentable;
 
+import java.time.LocalDate;
+import java.util.Optional;
+
 //classe criada para implementar métodos que são comuns para todos os tipos de objeto "alugáveis"
 abstract class AbstractRentable implements Rentable {
 	protected String name;
 	protected boolean permission;
-	protected String rentExpirationDate;
+	protected LocalDate rentExpirationDate;
 	protected boolean available;
 	protected int delay;
 
 	public AbstractRentable(String str){
 		name = str;
-		rentExpirationDate = "null";
+		rentExpirationDate = null;
 		delay = 0;
 		available = true;
 	}
@@ -19,12 +22,12 @@ abstract class AbstractRentable implements Rentable {
 		return permission;
 	}
 
-	public void setRentExpirationDate(String date){
+	public void setRentExpirationDate(LocalDate date){
 		rentExpirationDate = date;
 	}
 
-	public String getRentExpirationDate(){
-		return rentExpirationDate;
+	public Optional<LocalDate> getRentExpirationDate(){
+		return rentExpirationDate != null ? Optional.of(rentExpirationDate) : Optional.empty();
 	}
 
 	public void setDelay(int n){
@@ -44,6 +47,7 @@ abstract class AbstractRentable implements Rentable {
 	}
 
 	public void refund(){
+		rentExpirationDate = null;
 		available = true;
 	}
 

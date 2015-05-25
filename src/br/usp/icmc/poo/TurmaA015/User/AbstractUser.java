@@ -9,19 +9,21 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+import java.time.LocalDate;
+import java.util.Optional;
 
 abstract class AbstractUser implements User {
 	protected int maxFiles;
 	protected int maxRentTime;
 	protected String name;
 	protected boolean permission;
-	protected int ban;
+	private LocalDate ban;
 	private ArrayList<Rentable> ownedFiles;
 
 	public AbstractUser(String str){
 		name = str;
 		ownedFiles = new ArrayList<Rentable>();
-		ban = 0;
+		ban = null;
 	}
 
 	public int getMaxFiles(){
@@ -40,16 +42,16 @@ abstract class AbstractUser implements User {
 		return ownedFiles.contains(r);
 	}
 
-	public void setBan(int d){
-		ban = d;
+	public void setBan(LocalDate date){
+		ban = date;
 	}
 
-	public int getBanTime(){
+	public LocalDate getBanTime(){
 		return ban;
 	}
 
 	public boolean isBanned(){
-		return ban == 0 ? false : true;
+		return ban == null ? false : true;
 	}
 
 	//não precisa verificar se a pessoa tem o max de livros, pq a biblioteca sabe quantos livros ele tem
