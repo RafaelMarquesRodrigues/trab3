@@ -60,10 +60,6 @@ abstract class AbstractRentable implements Rentable {
 		return name;
 	}
 
-	public String getType(){
-		return "none";
-	}
-
 	public String toString(){
 		return name;
 	}

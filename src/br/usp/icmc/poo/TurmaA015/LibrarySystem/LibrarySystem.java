@@ -1,5 +1,5 @@
 
-package br.usp.icmc.poo.TurmaA015.LibraryOrganizer;
+package br.usp.icmc.poo.TurmaA015.LibrarySystem;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
@@ -8,12 +8,12 @@ import br.usp.icmc.poo.TurmaA015.Library.*;
 import java.io.*;
 import java.util.*;
 
-public class LibraryOrganizer {
+public class LibrarySystem {
 	private Organizer library;
 	private BufferedReader br;
 
 	public static void main(String[] args) {
-		LibraryOrganizer program = new LibraryOrganizer();
+		LibrarySystem program = new LibrarySystem();
 		program.start();
 	}
 

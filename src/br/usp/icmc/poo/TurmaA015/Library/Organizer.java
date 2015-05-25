@@ -16,9 +16,6 @@ public interface Organizer {
 	int rentFile(String name, String str);
 	int refundFile(String name, String str);
 
-	int getUsersSize();
-	int getFilesSize();
-
 	void saveContent();
 	void loadContent();
 
