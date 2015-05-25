@@ -17,7 +17,7 @@ import java.util.*;
 import java.time.*;
 import java.time.Period;
 
-public class Library implements Organizer {
+public class Library implements Organizer extends Application{
 	private ArrayList<User> users;			//guarda os dados de cada usuário
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
 	private Map<String, String> refunds;
