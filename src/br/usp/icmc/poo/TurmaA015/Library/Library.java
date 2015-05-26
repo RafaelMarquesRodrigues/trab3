@@ -4,9 +4,7 @@ package br.usp.icmc.poo.TurmaA015.Library;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 
-import java.nio.file.*;
-import java.nio.file.Path.*;
-import java.io.File.*;
+import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Map;
@@ -20,18 +18,18 @@ import java.time.Period;
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
-	private Map<String, String> refunds;
+	private Map<String, ArrayList<String>> refunds;
 	private String usersLog;
 	private String usersData;
 	private String filesLog;
 	private String filesData;
-	private String rentsData;
 	private LocalDate today;
 	private boolean systemLoading;
 
 	public Library() {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
+		refunds = new HashMap<String, ArrayList<String>>();
 
 		File file1 = new File("br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
 		File file2 = new File("br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
@@ -108,6 +106,7 @@ public class Library implements Organizer {
 	}
 
 	public int refundFile(String userName, String fileName){
+		ArrayList<String> array;
 		User user = getUser(userName);
 		Rentable rentedFile = getFile(fileName);
 		
@@ -125,6 +124,16 @@ public class Library implements Organizer {
 		rentedFile.refund();					//o livro é marcado como disponível novamente
 		rentedFile.removeDelay();				//retira-se qualquer possível atraso no livro
 
+		if(!refunds.containsKey(user.getType() + " " + user.getName())){
+			array = new ArrayList<String>();
+			array.add(rentedFile.getType().toLowerCase() + " " + rentedFile.getName());
+			refunds.put(user.getType() + " " + user.getName(), array);
+		}
+		else{
+			array = refunds.get(user.getType() + " " + user.getName());
+			array.add(rentedFile.getType().toLowerCase() + " " + rentedFile.getName());
+		}
+		
 		writeUsersLog(user, rentedFile, "refund");			
 		writeFilesLog(user, rentedFile, "refund");
 
@@ -166,7 +175,7 @@ public class Library implements Organizer {
 									.stream()
 									.collect(Collectors.groupingBy(Rentable::getName, Collectors.mapping(Rentable::getName, Collectors.counting())));
 		System.out.println("\n================================================\n");
-		if(files.size() == 0){
+		if(files.size() > 0){
 			filesMap
 				.forEach((k, v) -> System.out.println(k + " Copies: " + v));
 		}
@@ -201,7 +210,24 @@ public class Library implements Organizer {
 			}
 		}
 	}
-
+	
+	public void showRefunds(){
+		System.out.println("\n================================================\n");
+		
+		if(refunds.size() > 0){
+			refunds.forEach(new BiConsumer< String, ArrayList<String>> (){
+				public void accept(String k, ArrayList<String> v){
+								for(String s : v)
+									System.out.println(k + " refunded " + s + " at " + transformDate(today) + ".");
+				}
+			});
+		}
+		else
+			System.out.println("There are no refunds at the library yet.");
+			
+		System.out.println("\n================================================\n");
+	}
+	
 	//retorna um arquivo com nome "name" disponível para ser alugado, ou null caso não exista algum que satisfaça as condições
 	public Rentable getAvailableFile(String name){
 		return files
