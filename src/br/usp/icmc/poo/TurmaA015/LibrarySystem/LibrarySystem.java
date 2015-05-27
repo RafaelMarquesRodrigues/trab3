@@ -64,6 +64,16 @@ public class LibrarySystem {
 						System.out.println("Usage \"command show\": show <type> [users] [files].");
 				
 				}
+				else if(command.equals("reset")){
+					System.out.println("Are you sure you want to reset the library ? All information will be lost after the process. [Yes/No]");
+					try{
+						if(br.readLine().equals("yes"))
+							library.reset();
+					}
+					catch(IOException e){
+						System.out.println("Error trying to get user input.");
+					}
+				}
 				else if(command.equals("help"))
 					help();
 
@@ -94,6 +104,7 @@ public class LibrarySystem {
 			if(numbers.length != 3)
 				return false;
 			
+			//datas invalidas ?
 			library.setDate(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
 
 			return true;
@@ -206,8 +217,24 @@ public class LibrarySystem {
 			library.showUsers();
 		else if(parts[1].equals("files"))
 			library.showFiles();
-		else if(parts[1].equals("rents"))
-			library.showRents();
+		else if(parts[1].equals("rents")){
+			System.out.println("Insert the date pls:");
+			try {
+				library.showRents(br.readLine());
+			}
+			catch(IOException e){
+				System.out.println("Problem reading user input.");
+			}
+		}
+		else if(parts[1].equals("refunds")){
+			System.out.println("Insert the date pls:");
+			try {
+				library.showRefunds(br.readLine());
+			}
+			catch(IOException e){
+				System.out.println("Problem reading user input.");
+			}
+		}
 		else
 			System.out.println("Unrecognized type. Supported types are [users] [files] [rents].");
 	}
@@ -218,7 +245,8 @@ public class LibrarySystem {
 		System.out.println("add <type> [book] [note] [student] [teacher] [community]");
 		System.out.println("rent file");
 		System.out.println("refund file");
-		System.out.println("show <type> [uses] [files]");
+		System.out.println("show <type> [uses] [files] [rents] [refunds]");
+		System.out.println("reset");
 		System.out.println("\n===========================================================\n");
 	}
 }

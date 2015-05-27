@@ -19,10 +19,12 @@ public interface Organizer {
 	void saveContent();
 	void loadContent();
 
+	void reset();
+
 	void showUsers();
 	void showFiles();
-	void showRents();
-	void showRefunds();
+	void showRents(String date);
+	void showRefunds(String date);
 	
 	void setDate(int day, int month, int year);
 }

@@ -14,14 +14,17 @@ import java.io.*;
 import java.util.*;
 import java.time.*;
 import java.time.Period;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
-	private Map<String, ArrayList<String>> refunds;
 	private String usersLog;
-	private String usersData;
 	private String filesLog;
+	private String refundsData;
+	private String rentsData;
+	private String usersData;
 	private String filesData;
 	private LocalDate today;
 	private boolean systemLoading;
@@ -29,22 +32,30 @@ public class Library implements Organizer {
 	public Library() {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
-		refunds = new HashMap<String, ArrayList<String>>();
 
-		File file1 = new File("br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
-		File file2 = new File("br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
-		File file3 = new File("br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
-		File file4 = new File("br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
+		File file = new File("br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
+		System.out.println(file.getAbsolutePath());
+		usersLog = file.getAbsolutePath();
 
-		System.out.println(file1.getAbsolutePath());
-		System.out.println(file2.getAbsolutePath());
-		System.out.println(file3.getAbsolutePath());
-		System.out.println(file4.getAbsolutePath());
+		file = new File("br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
+		System.out.println(file.getAbsolutePath());
+		filesLog = file.getAbsolutePath();
 
-		usersLog = file1.getAbsolutePath();
-		filesLog = file2.getAbsolutePath();
-		usersData = file3.getAbsolutePath();
-		filesData = file4.getAbsolutePath();
+		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
+		System.out.println(file.getAbsolutePath());
+		usersData = file.getAbsolutePath();
+
+		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
+		System.out.println(file.getAbsolutePath());
+		filesData = file.getAbsolutePath();
+
+		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/rents.csv");
+		System.out.println(file.getAbsolutePath());
+		rentsData = file.getAbsolutePath();
+
+		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv");
+		System.out.println(file.getAbsolutePath());
+		refundsData = file.getAbsolutePath();
 
 		systemLoading = false;
 	}
@@ -52,6 +63,18 @@ public class Library implements Organizer {
 	public void setDate(int day, int month, int year){
 		today = LocalDate.of(year, month, day);
 		System.out.println(transformDate(today));
+	}
+
+	public void reset(){
+		try {
+			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/logs/users.log").get().resolve());
+			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/logs/files.log").get().resolve());
+			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/users.csv").get().resolve());
+			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/files.csv").get().resolve());
+			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/rents.csv").get().resolve());
+			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv").get().resolve());
+		}
+		catch(Exception e){}	//não é necessário tratar exceções aqui
 	}
 
 	//adiciona um novo arquivo na biblioteca
@@ -99,6 +122,9 @@ public class Library implements Organizer {
 		rentedFile.setRentExpirationDate(today.plusDays(user.getMaxRentTime()));	//data máxima para o usuário ficar com o livro
 		rentedFile.rent();															//coloca o livro como indisponível
 
+		if(!systemLoading)
+			writeEvent(user, rentedFile, rentsData);
+
 		writeUsersLog(user, rentedFile, "rent");									//escreve o que aconteceu no arquivo de logs		
 		writeFilesLog(user, rentedFile, "rent");
 		
@@ -123,17 +149,10 @@ public class Library implements Organizer {
 		user.refundFile(rentedFile);		 	//o usuário devolve o livro que está com ele
 		rentedFile.refund();					//o livro é marcado como disponível novamente
 		rentedFile.removeDelay();				//retira-se qualquer possível atraso no livro
+	
+		if(!systemLoading)
+			writeEvent(user, rentedFile, refundsData);
 
-		if(!refunds.containsKey(user.getType() + " " + user.getName())){
-			array = new ArrayList<String>();
-			array.add(rentedFile.getType().toLowerCase() + " " + rentedFile.getName());
-			refunds.put(user.getType() + " " + user.getName(), array);
-		}
-		else{
-			array = refunds.get(user.getType() + " " + user.getName());
-			array.add(rentedFile.getType().toLowerCase() + " " + rentedFile.getName());
-		}
-		
 		writeUsersLog(user, rentedFile, "refund");			
 		writeFilesLog(user, rentedFile, "refund");
 
@@ -186,46 +205,55 @@ public class Library implements Organizer {
 	}
 	
 	//mostra todos os alugueis ocorrendo atualmente
-	public void showRents(){
-		String str;
-		List<User> usersList;
+	public void showRents(String date){
+		BufferedReader br;
+		try{
+			String input = null;
+			String[] parts = null;
 
-		for(Rentable r : files){
-			usersList = users
-					.stream()
-					.filter(u -> u.hasFile(r))
-					.collect(Collectors.toList());
+			br = new BufferedReader(new FileReader(rentsData));
 
-			//pode ser melhorado ?
-			for(User user : usersList){		
-				System.out.println("\n================================================\n");
-				str = "";
-				str += user.getType() + " ";
-				str += user.getName() + " - ";
-				str += r.getType() + " ";
-				str += r.getName() + " ";
-				str += " - Rent expiration date: " + transformDate(r.getRentExpirationDate().orElse(null));
+			while((input = br.readLine()) != null){
+				parts = input.split(",");
 
-				System.out.println(str);
+				if(parts[4].equals(date))
+					System.out.println(parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[3]);
 			}
+
+			br.close();
+		}
+		catch(FileNotFoundException e){
+			System.out.println("Found no rents to show.");
+		}
+		catch(IOException e){
+			System.out.println("Error trying to load content.");
 		}
 	}
 	
-	public void showRefunds(){
-		System.out.println("\n================================================\n");
-		
-		if(refunds.size() > 0){
-			refunds.forEach(new BiConsumer< String, ArrayList<String>> (){
-				public void accept(String k, ArrayList<String> v){
-								for(String s : v)
-									System.out.println(k + " refunded " + s + " at " + transformDate(today) + ".");
-				}
-			});
+	public void showRefunds(String date){
+		BufferedReader br;
+
+		try{
+			String input = null;
+			String[] parts = null;
+
+			br = new BufferedReader(new FileReader(refundsData));
+
+			while((input = br.readLine()) != null){
+				parts = input.split(",");
+
+				if(parts[4].equals(date))
+					System.out.println(parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[3]);
+			}
+
+			br.close();
 		}
-		else
-			System.out.println("There are no refunds at the library yet.");
-			
-		System.out.println("\n================================================\n");
+		catch(FileNotFoundException e){
+			System.out.println("Found no refunds to show.");
+		}
+		catch(IOException e){
+			System.out.println("Error trying to load content.");
+		}
 	}
 	
 	//retorna um arquivo com nome "name" disponível para ser alugado, ou null caso não exista algum que satisfaça as condições
@@ -403,6 +431,19 @@ public class Library implements Organizer {
 	public void saveContent(){
 		writeUsersData();
 		writeFilesData();
+	}
+
+	private void writeEvent(User u, Rentable r, String fileName){
+		String separator = ",";
+		String data = "";
+
+		data += u.getType() + separator;
+		data += u.getName() + separator;
+		data += r.getType() + separator;
+		data += r.getName() + separator;
+		data += transformDate(today);
+
+		writeLog(data, fileName, true);
 	}
 
 	//escreve no arquivo .csv, os dados do usuário. Tipo, Nome, Data de ban ("null" caso não esteja banido)
