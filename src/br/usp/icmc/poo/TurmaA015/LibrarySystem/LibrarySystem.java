@@ -20,14 +20,16 @@ public class LibrarySystem {
 	public void start(){
 
 		System.out.println("System starting...");
-		System.out.println("Select the date to start the system: ");
 
 		br = new BufferedReader(new InputStreamReader(System.in));
 
 		library = new Library();
+		System.out.println("Select the date to start the system: (xx/xx/xxxx)");
 
 		while(!readDate())
 			System.out.println("Please enter a valid date. (xx/xx/xxxx)");
+
+		welcomeScreen();
 
 		System.out.println("Initializing library...");
 		library.loadContent();
@@ -61,14 +63,16 @@ public class LibrarySystem {
 					if(parts.length > 1)
 						commandShow(parts);
 					else
-						System.out.println("Usage \"command show\": show <type> [users] [files].");
+						System.out.println("Usage \"command show\": show <type> [users] [files] [rents] [refunds].");
 				
 				}
 				else if(command.equals("reset")){
 					System.out.println("Are you sure you want to reset the library ? All information will be lost after the process. [Yes/No]");
 					try{
-						if(br.readLine().equals("yes"))
+						if(br.readLine().equals("yes")){
+							System.out.println("Reseting library...");
 							library.reset();
+						}
 					}
 					catch(IOException e){
 						System.out.println("Error trying to get user input.");
@@ -105,9 +109,7 @@ public class LibrarySystem {
 				return false;
 			
 			//datas invalidas ?
-			library.setDate(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
-
-			return true;
+			return library.setDate(Integer.parseInt(numbers[0]), Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
 		
 		}
 		catch(IOException e){
@@ -236,7 +238,7 @@ public class LibrarySystem {
 			}
 		}
 		else
-			System.out.println("Unrecognized type. Supported types are [users] [files] [rents].");
+			System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds].");
 	}
 
 	public void help(){
@@ -245,8 +247,21 @@ public class LibrarySystem {
 		System.out.println("add <type> [book] [note] [student] [teacher] [community]");
 		System.out.println("rent file");
 		System.out.println("refund file");
-		System.out.println("show <type> [uses] [files] [rents] [refunds]");
+		System.out.println("show <type> [users] [files] [rents] [refunds]");
 		System.out.println("reset");
 		System.out.println("\n===========================================================\n");
+	}
+
+	public void welcomeScreen(){
+		System.out.println("\n***********************************************************************");
+		System.out.println("**                    Welcome to the library !                       **");
+		System.out.println("**                                                                   **");
+		System.out.println("**       Library available commands:                                 **");
+		System.out.println("**       add <type> [book] [note] [student] [teacher] [community]    **");
+		System.out.println("**       rent file                                                   **");
+		System.out.println("**       refund file                                                 **");
+		System.out.println("**       show <type> [users] [files] [rents] [refunds]               **");
+		System.out.println("**       reset                                                       **");
+		System.out.println("***********************************************************************\n");
 	}
 }

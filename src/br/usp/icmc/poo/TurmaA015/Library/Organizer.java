@@ -26,5 +26,5 @@ public interface Organizer {
 	void showRents(String date);
 	void showRefunds(String date);
 	
-	void setDate(int day, int month, int year);
+	boolean setDate(int day, int month, int year);
 }

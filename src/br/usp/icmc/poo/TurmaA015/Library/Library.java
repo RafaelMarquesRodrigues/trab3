@@ -16,6 +16,7 @@ import java.time.*;
 import java.time.Period;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
@@ -60,21 +61,57 @@ public class Library implements Organizer {
 		systemLoading = false;
 	}
 
-	public void setDate(int day, int month, int year){
-		today = LocalDate.of(year, month, day);
-		System.out.println(transformDate(today));
+	public boolean setDate(int day, int month, int year){
+		if(checkDate(day, month, year)){
+			today = LocalDate.of(year, month, day);
+			return true;
+		}
+		return false;
 	}
+
+	private boolean checkDate(int day, int month, int year){ //Vê se a data é válida
+        //year restriction here
+        if (0 >= day | day > 31) return false;
+        if (0 >= month | month > 12) return false;
+        if (month == 4 | month == 6 | month == 9 | month == 11)
+            if (day == 31) return false;
+        if (month == 2){
+            if (checkLeapYear(year))
+                if (day > 29) return false;
+            else
+                if (day > 28) return false;                    
+        }      
+        return true;
+    }
+       
+    private boolean checkLeapYear(int year){ //Vê se o ano é bissexto
+        if (year % 4 != 0) return false;
+        if (year % 100 != 0) return true;
+        return year % 400 == 0;        
+    }
 
 	public void reset(){
 		try {
-			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/logs/users.log").get().resolve());
-			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/logs/files.log").get().resolve());
-			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/users.csv").get().resolve());
-			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/files.csv").get().resolve());
-			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/rents.csv").get().resolve());
-			Files.delete(new Paths("br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv").get().resolve());
+
+			File f = new File("br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
+			f.delete();
+			f = new File("br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
+			f.delete();
+			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
+			f.delete();
+			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
+			f.delete();
+			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/rents.csv");
+			f.delete();
+			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv");
+			f.delete();
+
+			users = new ArrayList<User>();
+			files = new ArrayList<Rentable>();
 		}
-		catch(Exception e){}	//não é necessário tratar exceções aqui
+		catch(Exception e){
+			System.out.println(e);
+		}
 	}
 
 	//adiciona um novo arquivo na biblioteca
