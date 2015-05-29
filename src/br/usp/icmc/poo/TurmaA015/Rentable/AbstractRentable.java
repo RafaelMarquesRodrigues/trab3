@@ -8,14 +8,16 @@ abstract class AbstractRentable implements Rentable {
 	protected String name;
 	protected boolean permission;
 	protected LocalDate rentExpirationDate;
+	protected LocalDate creationDate;
 	protected boolean available;
 	protected int delay;
 
-	public AbstractRentable(String str){
+	public AbstractRentable(String str, LocalDate date){
 		name = str;
 		rentExpirationDate = null;
 		delay = 0;
 		available = true;
+		creationDate = date;
 	}
 	
 	public boolean needsPermission(){
@@ -26,8 +28,12 @@ abstract class AbstractRentable implements Rentable {
 		rentExpirationDate = date;
 	}
 
-	public Optional<LocalDate> getRentExpirationDate(){
-		return rentExpirationDate != null ? Optional.of(rentExpirationDate) : Optional.empty();
+	public LocalDate getRentExpirationDate(){
+		return rentExpirationDate;
+	}
+
+	public LocalDate getCreationDate(){
+		return creationDate;
 	}
 
 	public void setDelay(int n){

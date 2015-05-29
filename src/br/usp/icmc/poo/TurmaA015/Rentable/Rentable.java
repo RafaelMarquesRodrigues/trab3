@@ -10,11 +10,13 @@ public interface Rentable {
 	boolean needsPermission();
 	
 	void setRentExpirationDate(LocalDate date);
-	Optional<LocalDate> getRentExpirationDate();
+	LocalDate getRentExpirationDate();
 	
 	void setDelay(int n);
 	void removeDelay();
 	int getDelay();
+
+	LocalDate getCreationDate();
 
 	boolean isAvailable();
 	void rent();

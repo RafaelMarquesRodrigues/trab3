@@ -4,10 +4,12 @@ package br.usp.icmc.poo.TurmaA015.Library;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 
+import java.time.LocalDate;
+
 public interface Organizer {
 	//métodos para adicionar pessoas e arquivos que podem ser alugados
-	boolean addFile(Rentable r);
-	boolean addUser(User u);
+	int addFile(Rentable r);
+	int addUser(User u);
 
 	//métodos para verificar as pessoas que tem algum arquivo do local e quais arquivos existem no local
 	User getUser(String name);
@@ -16,15 +18,22 @@ public interface Organizer {
 	int rentFile(String name, String str);
 	int refundFile(String name, String str);
 
-	void saveContent();
-	void loadContent();
+	void exit();
+	void begin();
 
-	void reset();
+	int reset();
 
 	void showUsers();
+	void showUsersAdded();
 	void showFiles();
-	void showRents(String date);
-	void showRefunds(String date);
+	void showFilesAdded();
+	void showRents();
+	void showRefunds();
+
+	LocalDate stringToDate(String date);
+	String dateToString(LocalDate date);
 	
 	boolean setDate(int day, int month, int year);
+
+	String getDate();
 }

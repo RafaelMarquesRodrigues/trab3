@@ -1,11 +1,11 @@
 package br.usp.icmc.poo.TurmaA015.User;
 
-import br.usp.icmc.poo.TurmaA015.Rentable.*;
+import java.time.LocalDate;
 
 public class Community extends AbstractUser {
 
-	public Community(String str){
-		super(str);
+	public Community(String str, LocalDate date){
+		super(str, date);
 		maxRentTime = 15;
 		maxFiles = 2;
 		permission = false;

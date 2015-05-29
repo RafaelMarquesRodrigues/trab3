@@ -19,6 +19,8 @@ public interface User {
 	String getType();
 	String getName();
 	String getFilesName();
+	
+	LocalDate getCreationDate();
 
 	void setBan(LocalDate date);
 	LocalDate getBanTime();

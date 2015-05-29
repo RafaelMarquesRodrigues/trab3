@@ -1,11 +1,11 @@
 package br.usp.icmc.poo.TurmaA015.User;
 
-import br.usp.icmc.poo.TurmaA015.Rentable.*;
+import java.time.LocalDate;
 
 public class Student extends AbstractUser {
 
-	public Student(String str){
-		super(str);
+	public Student(String str, LocalDate date){
+		super(str, date);
 		maxRentTime = 15;
 		maxFiles = 4;
 		permission = true;

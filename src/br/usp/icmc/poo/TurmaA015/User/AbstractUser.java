@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
-
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -18,12 +17,14 @@ abstract class AbstractUser implements User {
 	protected String name;
 	protected boolean permission;
 	private LocalDate ban;
+	private LocalDate creationDate;
 	private ArrayList<Rentable> ownedFiles;
 
-	public AbstractUser(String str){
+	public AbstractUser(String str, LocalDate date){
 		name = str;
 		ownedFiles = new ArrayList<Rentable>();
 		ban = null;
+		creationDate = date;
 	}
 
 	public int getMaxFiles(){
@@ -70,6 +71,10 @@ abstract class AbstractUser implements User {
 
 	public String getName(){
 		return name;
+	}
+
+	public LocalDate getCreationDate(){
+		return creationDate;
 	}
 
 	public String getFilesName(){
