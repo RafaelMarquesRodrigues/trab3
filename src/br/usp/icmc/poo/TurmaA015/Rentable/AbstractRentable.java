@@ -1,7 +1,6 @@
 package br.usp.icmc.poo.TurmaA015.Rentable;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 //classe criada para implementar métodos que são comuns para todos os tipos de objeto "alugáveis"
 abstract class AbstractRentable implements Rentable {

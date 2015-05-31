@@ -3,7 +3,6 @@ package br.usp.icmc.poo.TurmaA015.User;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 public interface User {
 	void rentFile(Rentable r);

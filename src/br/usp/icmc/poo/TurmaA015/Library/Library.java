@@ -4,19 +4,14 @@ package br.usp.icmc.poo.TurmaA015.Library;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 
-import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.io.PrintWriter;
 import java.io.*;
-import java.util.*;
 import java.time.*;
 import java.time.Period;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.Path;
 
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
@@ -36,27 +31,27 @@ public class Library implements Organizer {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
 
-		File file = new File("br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
+		File file = new File("src/br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
 		System.out.println(file.getAbsolutePath());
 		usersLog = file.getAbsolutePath();
 
-		file = new File("br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
+		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
 		System.out.println(file.getAbsolutePath());
 		filesLog = file.getAbsolutePath();
 
-		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
+		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
 		System.out.println(file.getAbsolutePath());
 		usersData = file.getAbsolutePath();
 
-		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
+		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
 		System.out.println(file.getAbsolutePath());
 		filesData = file.getAbsolutePath();
 
-		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/rents.csv");
+		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/rents.csv");
 		System.out.println(file.getAbsolutePath());
 		rentsData = file.getAbsolutePath();
 
-		file = new File("br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv");
+		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv");
 		System.out.println(file.getAbsolutePath());
 		refundsData = file.getAbsolutePath();
 
@@ -215,7 +210,6 @@ public class Library implements Organizer {
 		if(readOnly)
 			return 0;
 
-		ArrayList<String> array;
 		User user = getUser(userName);
 		Rentable rentedFile = getFile(fileName);
 		

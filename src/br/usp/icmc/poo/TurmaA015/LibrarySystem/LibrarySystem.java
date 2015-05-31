@@ -6,7 +6,6 @@ import br.usp.icmc.poo.TurmaA015.User.*;
 import br.usp.icmc.poo.TurmaA015.Library.*;
 
 import java.io.*;
-import java.util.*;
 
 public class LibrarySystem {
 	private Organizer library;

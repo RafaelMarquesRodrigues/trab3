@@ -2,14 +2,9 @@ package br.usp.icmc.poo.TurmaA015.User;
 
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 
-import java.util.*;
-
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
-import java.util.Optional;
 
 abstract class AbstractUser implements User {
 	protected int maxFiles;

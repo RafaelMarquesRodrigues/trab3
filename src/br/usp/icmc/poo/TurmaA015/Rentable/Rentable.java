@@ -1,7 +1,6 @@
 package br.usp.icmc.poo.TurmaA015.Rentable;
 
 import java.time.LocalDate;
-import java.util.Optional;
 
 public interface Rentable {
 	String getName();
