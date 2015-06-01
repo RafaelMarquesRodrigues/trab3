@@ -221,8 +221,14 @@ public class Library implements Organizer {
 			System.out.println(user.getType() + " " + user.getName());
 
 			System.out.println("User added in " + dateToString(user.getCreationDate()));
+			System.out.println("ID: " + user.getId());
+			System.out.println("Nationality: " + user.getNationality());
+			
+			if(user.isBanned())
+				System.out.println("Banned until: " + dateToString(user.getBanTime()));
+			
 			if(user.getFilesQuantity() > 0){
-				System.out.println("Rented books for this user: \n");
+				System.out.println("\nRented books for this user: \n");
 
 				for(Rentable r : files){
 					if(user.hasFile(r)){
@@ -377,9 +383,10 @@ public class Library implements Organizer {
 			while((input = br.readLine()) != null){
 				parts = input.split(",");
 
-				if(parts[4].equals(dateToString(systemDate))){
+				if(parts[5].equals(dateToString(systemDate))){
 					rentMade = true;
-					System.out.println(parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[3]);
+					User u = getUser(parts[0]);
+					System.out.println(u.getType() + " " + u.getName() + " rented " + parts[1].toLowerCase() + " " + parts[2] + " - Language: " + parts[3] + " - Publishing house: " + parts[4]);
 				}
 			}
 
@@ -415,9 +422,10 @@ public class Library implements Organizer {
 			while((input = br.readLine()) != null){
 				parts = input.split(",");
 
-				if(parts[4].equals(dateToString(systemDate))){
+				if(parts[6].equals(dateToString(systemDate))){
 					refundMade = true;
-					System.out.println(parts[0] + " " + parts[1] + " " + parts[2] + " " + parts[3]);
+					User u = getUser(parts[0]);
+					System.out.println(u.getType() + " " + u.getName() + " refunded " + parts[1].toLowerCase() + " " + parts[2] + " - Language: " + parts[3] + " - Publishing house: " + parts[4]);
 				}
 			}
 
@@ -566,7 +574,7 @@ public class Library implements Organizer {
 					addFile(r);
 					
 					if(!content[0].equals("none")){
-					//	rentFile(content[0], content[2], content[3], content[4]);
+						rentFile(content[0], new Integer(files.indexOf(getFile(content[2], content[3], content[4]))).toString());
 						r.setRentExpirationDate(stringToDate(content[6]));
 
 						time = stringToDate(content[6]).until(systemDate, ChronoUnit.DAYS);
@@ -601,10 +609,11 @@ public class Library implements Organizer {
 		String separator = ",";
 		String data = "";
 
-		data += u.getType() + separator;
-		data += u.getName() + separator;
+		data += u.getId() + separator;
 		data += r.getType() + separator;
 		data += r.getName() + separator;
+		data += r.getLanguage() + separator;
+		data += r.getPublishingHouse() + separator;
 		data += dateToString(systemDate);
 
 		writeLog(data, fileName, true);
