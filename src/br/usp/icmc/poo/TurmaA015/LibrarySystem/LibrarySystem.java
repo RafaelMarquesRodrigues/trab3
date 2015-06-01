@@ -6,6 +6,7 @@ import br.usp.icmc.poo.TurmaA015.User.*;
 import br.usp.icmc.poo.TurmaA015.Library.*;
 
 import java.io.*;
+import java.text.Collator;
 
 public class LibrarySystem {
 	private Organizer library;
@@ -21,7 +22,6 @@ public class LibrarySystem {
 		System.out.println("System starting...");
 
 		br = new BufferedReader(new InputStreamReader(System.in));
-
 
 		System.out.println("Initializing library...");
 
@@ -64,6 +64,7 @@ public class LibrarySystem {
 						System.out.println("Usage \"command show\": show <type> [users] [files] [rents] [refunds].\n");
 				
 				}
+				//limpa todos os arquivos da biblioteca
 				else if(command.equals("reset")){
 					System.out.println("Are you sure you want to reset the library ? All information will be lost after the process. [Yes/No]");
 					try{
@@ -92,7 +93,8 @@ public class LibrarySystem {
 
 		library.exit();
 	}
-
+	
+	//escolhe a data para o sistema
 	public void setDate(){
 		System.out.println("Select the date to start the system: (xx/xx/xxxx)");
 
@@ -124,59 +126,59 @@ public class LibrarySystem {
 		return false;
 	}
 
+	//metodo para lidar com um novo arquivo ou usuario
 	public void commandAdd(String[] parts){
 		try{
-			int addResult;
-
-			if(parts[1].equals("book")){
-				System.out.println("Please enter the name of the book you want to add: ");
-				if(library.addFile(new Book(br.readLine(), library.stringToDate(library.getDate()))) == 1)
-					System.out.println("Added new book successfully.\n");
+			if(parts[1].equals("book") || parts[1].equals("note")){
+				System.out.println("Please enter the name of the file you want to add: ");
+				String filename = br.readLine();
+				
+				System.out.println("Please enter the language of the file you want to add: ");
+				String language = br.readLine();
+				
+				System.out.println("Please enter the publishing house of the file you want to add: ");
+				
+				if(parts[1].equals("book")){
+					if(library.addFile(new Book(filename, language, br.readLine(), library.stringToDate(library.getDate()))) == 1)
+						System.out.println("Added new book successfully.\n");
+					else
+						System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
+				}
+				else if(parts[1].equals("note")){
+					if(library.addFile(new Note(filename, language, br.readLine(), library.stringToDate(library.getDate()))) == 1)
+						System.out.println("Added new book successfully.\n");
+					else
+						System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
+				}
 				else
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
+					System.out.println("Usage command \"add\": add <type> [book] [note] [student] [teacher] [community].");
 			}
-			else if(parts[1].equals("note")){
-				System.out.println("Please enter the name of the note you want to add: ");
-				if(library.addFile(new Note(br.readLine(), library.stringToDate(library.getDate()))) == 1)
-					System.out.println("Added new book successfully.\n");
-				else
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
-			}
-			else if(parts[1].equals("student")){
+			else if(parts[1].equals("teacher") || parts[1].equals("community") || parts[1].equals("student")){
+				int addResult = -1;
+				
 				System.out.println("Please enter the name of the user you want to add: ");
-
-				addResult = library.addUser(new Student(br.readLine(), library.stringToDate(library.getDate())));
+				String username = br.readLine();
+				
+				System.out.println("Please enter the nationality of the user you want to add: ");
+				String nationality = br.readLine();
+				
+				System.out.println("Please enter the id of the user you want to add (unique): ");
+				
+				if(parts[1].equals("student"))
+					addResult = library.addUser(new Student(username, br.readLine(), nationality, library.stringToDate(library.getDate())));		
+				else if(parts[1].equals("teacher"))
+					addResult = library.addUser(new Teacher(username, br.readLine(), nationality, library.stringToDate(library.getDate())));
+				else if(parts[1].equals("community"))	
+					addResult = library.addUser(new Community(username, br.readLine(), nationality, library.stringToDate(library.getDate())));
+				else
+					System.out.println("Usage \"command add\": add <type> [book] [note] [student] [teacher] [community].");
 				
 				if(addResult == 1)
 					System.out.println("Added new user successfully.\n");
 				else if(addResult == 0)
 					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
 				else
-					System.out.println("Theres already a student with this name !\n");
-			}
-			else if(parts[1].equals("teacher")){
-				System.out.println("Please enter the name of the user you want to add: ");
-
-				addResult = library.addUser(new Teacher(br.readLine(), library.stringToDate(library.getDate())));
-				
-				if(addResult == 1)
-					System.out.println("Added new user successfully.\n");
-				else if(addResult == 0)
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
-				else
-					System.out.println("Theres already a teacher with this name !\n");
-			}
-			else if(parts[1].equals("community")){
-				System.out.println("Please enter the name of the user you want to add: ");
-
-				addResult = library.addUser(new Community(br.readLine(), library.stringToDate(library.getDate())));
-				
-				if(addResult == 1)
-					System.out.println("Added new user successfully.\n");
-				else if(addResult == 0)
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
-				else
-					System.out.println("Theres already a community with this name !\n");
+					System.out.println("Theres already a user with this id !\n");
 			}
 			else
 				System.out.println("Usage \"command add\": add <type> [book] [note] [student] [teacher] [community].");
@@ -185,29 +187,32 @@ public class LibrarySystem {
 			System.out.println("Error trying to get user input.");
 		}
 	}
-
+	
+	//metodo para alugar arquivos da biblioteca
 	public void commandRent(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive: ");
-			String fileName = br.readLine();
+			System.out.println("Please enter the code of the archive: ");
+			String code = br.readLine();
 			
-			System.out.println("Please enter the name of the user: ");
-			String userName = br.readLine();
+			System.out.println("Please enter the id of the user: ");
+			String id = br.readLine();
 
-			int rentResult = library.rentFile(userName, fileName);
-
-			if(rentResult == -1)
-				System.out.println("User " + userName + " not found.\n");
+			int rentResult = library.rentFile(id, code);
+			
+			if(rentResult == 0)
+				System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
+			else if(rentResult == -1)
+				System.out.println("User id " + id + " not found.\nTry \"show users\" to see all the users codes");
 			else if(rentResult == -2)
-				System.out.println("File " + fileName + " not found.\n");
+				System.out.println("File code " + code + " not found.\nTry \"show files\" to see all the files codes, or \"show filename <name>\" to see only the books with title <name>.");
 			else if(rentResult == -3)
-				System.out.println("The book " + fileName + " is already rented, and there are no copies available.\n");
+				System.out.println("The book with id " + code + " is already rented, and there are no copies available.\n");
 			else if(rentResult == -4)
-				System.out.println("User " + userName + " already has max number of rented files.\n");
+				System.out.println("User id " + id + " already has max number of rented files.\n");
 			else if(rentResult == -5)
-				System.out.println("User " + userName + " doesn't have permission to rent the file " + fileName + ".\n");
+				System.out.println("User id " + id + " doesn't have permission to rent the file " + code + ".\n");
 			else if(rentResult == -6)
-				System.out.println("User " + userName + " cant rent the file " + fileName + " because he/she is banned.\n");
+				System.out.println("User id " + id + " cant rent the file " + code + " because he/she is banned.\n");
 			else		
 				System.out.println("File rented !\n");
 		}
@@ -218,20 +223,22 @@ public class LibrarySystem {
 
 	public void commandRefund(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive: ");
-			String fileName = br.readLine();
+			System.out.println("Please enter the code of the archive: ");
+			String code = br.readLine();
 
-			System.out.println("Please enter the name of the user: ");
-			String userName = br.readLine();
+			System.out.println("Please enter the id of the user: ");
+			String id = br.readLine();
 
-			int refundResult = library.refundFile(userName, fileName);
+			int refundResult = library.refundFile(id, code);
 
+			if(refundResult == 0)
+				System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
 			if(refundResult == -1)
-				System.out.println("User " + userName + " not found.\n");
+				System.out.println("User id " + id + " not found.\n");
 			else if(refundResult == -2)
-				System.out.println("File " + fileName + " not found.\n");
+				System.out.println("File id " + code + " not found.\n");
 			else if(refundResult == -3)
-				System.out.println("The user doesnt have this book.\n");
+				System.out.println("The user doesnt have this file.\n");
 			else		
 				System.out.println("File refunded !\n");
 		}
@@ -243,26 +250,49 @@ public class LibrarySystem {
 	public void commandShow(String[] parts){
 		if(parts[1].equals("users")){
 			if(parts.length < 3)
-				library.showUsers();
+				library.showUsers((User u) -> true);
 			else if(parts[2].equals("added"))
 				library.showUsersAdded();
 			else
-				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added] [filename <name>].\n");
 		}
 		else if(parts[1].equals("files")){
 			if(parts.length < 3)
-				library.showFiles();
+				library.showFiles((String s) -> true);
 			else if(parts[2].equals("added"))
 				library.showFilesAdded();
 			else
-				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added] [filename <name>].\n");
+		}
+		else if(parts[1].equals("filename") && parts.length > 2)
+			library.showFiles(s -> {
+				Collator c = Collator.getInstance();
+				c.setStrength(Collator.PRIMARY);
+				return c.compare(s.substring(0, s.indexOf(",")), rebuildName(parts)) == 0;
+			});
+		else if(parts[1].equals("username") && parts.length > 2){
+			library.showUsers(u -> {
+				Collator c = Collator.getInstance();
+				c.setStrength(Collator.PRIMARY);
+				return c.compare(u.getName(), rebuildName(parts)) == 0;
+			});
 		}
 		else if(parts[1].equals("rents"))
 			library.showRents();
 		else if(parts[1].equals("refunds"))
 			library.showRefunds();
 		else
-			System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+			System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added] [filename <name>].\n");
+	}
+	
+	private String rebuildName(String[] parts){
+		String str = "";
+		for(int i = 2; i < parts.length; i++){
+			str += parts[i];
+			if(i != parts.length -1)
+				str += " ";
+		}
+		return str;
 	}
 
 	public void _help(){
@@ -271,6 +301,7 @@ public class LibrarySystem {
 		System.out.println("**       rent file                                                                 **");
 		System.out.println("**       refund file                                                               **");
 		System.out.println("**       show <type> [users] [files] [rents] [refunds] [users added] [files added] **");
+		System.out.println("**       show [filename] [username] <name>                                         **");
 		System.out.println("**       set date                                                                  **");
 		System.out.println("**       reset                                                                     **");
 		System.out.println("*************************************************************************************\n");	

@@ -17,7 +17,8 @@ public interface User {
 	
 	String getType();
 	String getName();
-	String getFilesName();
+	String getNationality();
+	String getId();
 	
 	LocalDate getCreationDate();
 

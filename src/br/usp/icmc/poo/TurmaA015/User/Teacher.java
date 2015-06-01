@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 public class Teacher extends AbstractUser {
 
-	public Teacher(String str, LocalDate date){
-		super(str, date);
+	public Teacher(String name, String id, String nationality, LocalDate date){
+		super(name, id, nationality, date);
 		maxRentTime = 60;
 		maxFiles = 6;
 		permission = true;
