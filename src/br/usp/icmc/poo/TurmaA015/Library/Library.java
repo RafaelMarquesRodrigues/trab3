@@ -33,33 +33,25 @@ public class Library implements Organizer {
 		files = new ArrayList<Rentable>();
 
 		File file = new File("logs/users.log");
-		System.out.println(file.getPath());
 		usersLog = file.getPath();
 
 		file = new File("logs/files.log");
-		System.out.println(file.getPath());
 		filesLog = file.getPath();
 
 		file = new File("data/users.csv");
-		System.out.println(file.getPath());
 		usersData = file.getPath();
 
 		file = new File("data/files.csv");
-		System.out.println(file.getPath());
 		filesData = file.getPath();
 
 		file = new File("data/rents.csv");
-		System.out.println(file.getPath());
 		rentsData = file.getPath();
 
 		file = new File("data/refunds.csv");
-		System.out.println(file.getPath());
 		refundsData = file.getPath();
 
 		systemDate = LocalDate.now();
 		today = systemDate;
-		
-		System.out.println(dateToString(systemDate));
 
 		readOnly = false;
 
@@ -119,17 +111,17 @@ public class Library implements Organizer {
 
 		try {
 
-			File f = new File("br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
+			File f = new File("logs/users.log");
 			f.delete();
-			f = new File("br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
+			f = new File("logs/files.log");
 			f.delete();
-			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
+			f = new File("data/users.csv");
 			f.delete();
-			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
+			f = new File("data/files.csv");
 			f.delete();
-			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/rents.csv");
+			f = new File("data/rents.csv");
 			f.delete();
-			f = new File("br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv");
+			f = new File("data/refunds.csv");
 			f.delete();
 
 			users = new ArrayList<User>();
