@@ -22,7 +22,6 @@ public class LibrarySystem {
 
 		br = new BufferedReader(new InputStreamReader(System.in));
 
-
 		System.out.println("Initializing library...");
 
 		library = new Library();
@@ -64,6 +63,7 @@ public class LibrarySystem {
 						System.out.println("Usage \"command show\": show <type> [users] [files] [rents] [refunds].\n");
 				
 				}
+				//limpa todos os arquivos da biblioteca
 				else if(command.equals("reset")){
 					System.out.println("Are you sure you want to reset the library ? All information will be lost after the process. [Yes/No]");
 					try{
@@ -92,7 +92,8 @@ public class LibrarySystem {
 
 		library.exit();
 	}
-
+	
+	//escolhe a data para o sistema
 	public void setDate(){
 		System.out.println("Select the date to start the system: (xx/xx/xxxx)");
 
@@ -124,6 +125,7 @@ public class LibrarySystem {
 		return false;
 	}
 
+	//metodo para lidar com um novo arquivo ou usuario
 	public void commandAdd(String[] parts){
 		try{
 			if(parts[1].equals("book") || parts[1].equals("note")){
@@ -184,7 +186,8 @@ public class LibrarySystem {
 			System.out.println("Error trying to get user input.");
 		}
 	}
-
+	
+	//metodo para alugar arquivos da biblioteca
 	public void commandRent(String[] parts){
 		try{
 			System.out.println("Please enter the name of the archive: ");
@@ -278,10 +281,6 @@ public class LibrarySystem {
 			library.showRefunds();
 		else
 			System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
-	}
-	
-	public void commandSearch(){
-		
 	}
 
 	public void _help(){

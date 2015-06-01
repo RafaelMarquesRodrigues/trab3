@@ -10,8 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.io.PrintWriter;
 import java.io.*;
-import java.time.*;
-import java.time.Period;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.function.*;
 
 public class Library implements Organizer {
@@ -66,7 +66,6 @@ public class Library implements Organizer {
 			if(today.isAfter(systemDate))
 				readOnly = true;
 			else{
-				//salva as alterações e checa por atrasos
 				exit();
 				users = new ArrayList<User>();
 				files = new ArrayList<Rentable>();
@@ -495,7 +494,7 @@ public class Library implements Organizer {
 		String[] content = null;
 		String input = null;
 		BufferedReader br = null;
-		int time;
+		long time;
 
 		systemLoading = true;		//evita que operações desnecessárias sejam feitas nos métodos rent que vão ser utilizados para dar load no conteúdo
 
@@ -519,7 +518,7 @@ public class Library implements Organizer {
 
 				if(!content[4].equals("null")){					//caso o usuário tenha uma data de ban, recolocamos ela no status do usuário no programa
 					user.setBan(stringToDate(content[4]));
-					
+
 					//se o dia atual for depois do dia máximo de ban, retiriamos o ban do usuário
 					if(systemDate.isAfter(user.getBanTime())){
 						System.out.println("User " + content[1] + " is no longer banned.");
@@ -556,11 +555,11 @@ public class Library implements Organizer {
 						rentFile(content[0], content[2], content[3], content[4]);
 						r.setRentExpirationDate(stringToDate(content[6]));
 
-						time = dateDifference(dateToString(systemDate), content[6]);
+						time = stringToDate(content[6]).until(systemDate, ChronoUnit.DAYS);
 
 						//se a diferença entre a data atual e a data máxima de entrega do livro for positiva, o usuário atrasou a devolução e deve ser banido
 						if(time > 0){
-							r.setDelay(time);
+							r.setDelay((int) time);
 							System.out.println("Delay on file " + r.getName() + " - " + time + " days.");
 							getUser(content[0]).setBan(systemDate.plusDays(time));
 						}
@@ -577,21 +576,6 @@ public class Library implements Organizer {
 		}
 
 		systemLoading = false;
-	}
-
-	//retorna, em dias, systemDate - date
-	private int dateDifference(String systemDate, String date){
-		LocalDate dateOfToday = stringToDate(systemDate);
-		LocalDate expirationDate = stringToDate(date);
-		
-		//desnecessário ? period.getDays() retornaria negativo caso systemDate < date ????
-		if(dateOfToday.isAfter(expirationDate)){
-			Period period = Period.between(expirationDate, dateOfToday);
-			System.out.println("New ban " + dateToString(expirationDate) + " " + dateToString(dateOfToday) +" " + period.getDays());
-			return period.getDays();
-		}
-		else
-			return 0;
 	}
 
 	public void exit(){
