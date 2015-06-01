@@ -5,6 +5,7 @@ import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 
 import java.time.LocalDate;
+import java.util.function.Predicate;
 
 public interface Organizer {
 	//métodos para adicionar pessoas e arquivos que podem ser alugados
@@ -19,9 +20,9 @@ public interface Organizer {
 
 	int reset();
 
-	void showUsers();
+	void showUsers(Predicate<User> filter);
 	void showUsersAdded();
-	void showFiles();
+	void showFiles(Predicate<String> filter);
 	void showFilesAdded();
 	void showRents();
 	void showRefunds();

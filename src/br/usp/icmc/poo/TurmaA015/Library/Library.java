@@ -213,59 +213,63 @@ public class Library implements Organizer {
 		return 1;
 	}
 
-	public void showUsers(){
+	public void showUsers(Predicate<User> filter){
 		System.out.println("\n\n** Showing currently registered users **\n");
 		
-		for(User user : users){
-			System.out.println("\n================================================\n");
-			System.out.println(user.getType() + " " + user.getName());
-
-			System.out.println("User added in " + dateToString(user.getCreationDate()));
-			System.out.println("ID: " + user.getId());
-			System.out.println("Nationality: " + user.getNationality());
-			
-			if(user.isBanned())
-				System.out.println("Banned until: " + dateToString(user.getBanTime()));
-			
-			if(user.getFilesQuantity() > 0){
-				System.out.println("\nRented books for this user: \n");
-
-				for(Rentable r : files){
-					if(user.hasFile(r)){
-						System.out.print(r.getType() + " " + r.getName() + " - Expiration date: " + dateToString(r.getRentExpirationDate()) + " - File code: " + files.indexOf(r));
+		users
+			.stream()
+			.filter(filter)
+			.forEach((user) -> {
+				System.out.println("\n================================================\n");
+				System.out.println(user.getType() + " " + user.getName());
+	
+				System.out.println("User added in " + dateToString(user.getCreationDate()));
+				System.out.println("ID: " + user.getId());
+				System.out.println("Nationality: " + user.getNationality());
+				
+				if(user.isBanned())
+					System.out.println("Banned until: " + dateToString(user.getBanTime()));
+				
+				if(user.getFilesQuantity() > 0){
+					System.out.println("\nRented books for this user: \n");
+	
+					for(Rentable r : files){
+						if(user.hasFile(r)){
+							System.out.print(r.getType() + " " + r.getName() + " - Expiration date: " + dateToString(r.getRentExpirationDate()) + " - File code: " + files.indexOf(r));
+							
+							if(r.getDelay() != 0)
+								System.out.print(" (Please refund this book to the library as soon as possible.)");
 						
-						if(r.getDelay() != 0)
-							System.out.print(" (Please refund this book to the library as soon as possible.)");
-					
-					System.out.print("\n");
+						System.out.print("\n");
+						}
 					}
 				}
-			}
-			else
-				System.out.println("This user doens't have any book rented.");
-		
-		}
-
+				else
+					System.out.println("This user doens't have any book rented.");
+			});
 		if(users.size() == 0)
 			System.out.println("There are no users at the library yet.");
 
 		System.out.println("\n================================================\n");
 	}
 
-	public void showFiles(){
-		System.out.println("\n\n** Showing currently registered files **\n");
+	public void showFiles(Predicate<String> filter){
+		
 		//mapeia cada nome de livro com sua respectiva quantidade de cópias
 		Map<String, Long> filesMap = files 
 									.stream()
-									.collect(Collectors.groupingBy((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.mapping((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.counting())));
+									.collect(Collectors.groupingBy((r) -> r.getName() + "," + r.getType() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.mapping((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.counting())));
 		
 		if(files.size() > 0){
+			System.out.println("\n\n** Showing currently registered files **\n");
+			
 			filesMap.keySet()
 				.stream()
+				.filter(filter)
 				.sorted(String.CASE_INSENSITIVE_ORDER.reversed())
 				.forEach((s) -> {
 					String parts[] = s.split(",");
-					Rentable r = getFile(parts[1], parts[2], parts[3]);
+					Rentable r = getFile(parts[0], parts[2], parts[3]);
 					System.out.println("\n================================================\n");
 					System.out.println(r.getType() + " \"" + r.getName() + "\"");
 					System.out.println("Language: " + r.getLanguage());
@@ -443,33 +447,22 @@ public class Library implements Organizer {
 
 		System.out.println("\n================================================\n");
 	}
-	
-	//retorna um arquivo com nome "name" disponível para ser alugado, ou null caso não exista algum que satisfaça as condições
-	public Rentable getAvailableFile(String fileName, String language, String publishingHouse){
-		return _hasFile(f -> f.isAvailable() && f.getName().equals(fileName) && f.getLanguage().equals(language) && f.getPublishingHouse().equals(publishingHouse)).orElse(null);	
-	}
 
-	//retorna um arquivo com nome "fileName" já alugado pelo usuário com nome "userName", ou null caso não exista algum que satisfaça as condições
-	public Rentable getRentedFile(String id, String fileName, String language, String publishingHouse){
-		if(getUser(id).hasFile(getFile(fileName, language, publishingHouse))){
-			return getFile(fileName, language, publishingHouse);
-		}
-		return null;
-	}
-	
 	public Rentable getRentedFileAtIndex(String id, String index){
-		if(getUser(id).hasFile(files.get(Integer.parseInt(index)))){
+		if(files.size() > Integer.parseInt(index) && getUser(id).hasFile(files.get(Integer.parseInt(index)))){
 			return files.get(Integer.parseInt(index));
 		}		
 		return null;
 	}
 	
 	public Rentable getFileAtIndex(String index){
-		return files.get(Integer.parseInt(index));
+		if(files.size() > Integer.parseInt(index) && Integer.parseInt(index) > 0)
+			return files.get(Integer.parseInt(index));
+		return null;
 	}
 	
 	public Rentable getAvailableFileAtIndex(String index){
-		if(files.get(Integer.parseInt(index)).isAvailable())
+		if(files.size() > Integer.parseInt(index) && files.get(Integer.parseInt(index)).isAvailable())
 				return files.get(Integer.parseInt(index));
 		return null;
 	}

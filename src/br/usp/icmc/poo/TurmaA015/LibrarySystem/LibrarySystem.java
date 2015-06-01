@@ -6,6 +6,7 @@ import br.usp.icmc.poo.TurmaA015.User.*;
 import br.usp.icmc.poo.TurmaA015.Library.*;
 
 import java.io.*;
+import java.text.Collator;
 
 public class LibrarySystem {
 	private Organizer library;
@@ -161,7 +162,7 @@ public class LibrarySystem {
 				System.out.println("Please enter the nationality of the user you want to add: ");
 				String nationality = br.readLine();
 				
-				System.out.println("Please enter the id of the user you want to add: ");
+				System.out.println("Please enter the id of the user you want to add (unique): ");
 				
 				if(parts[1].equals("student"))
 					addResult = library.addUser(new Student(username, br.readLine(), nationality, library.stringToDate(library.getDate())));		
@@ -190,34 +191,28 @@ public class LibrarySystem {
 	//metodo para alugar arquivos da biblioteca
 	public void commandRent(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive: ");
-			String fileName = br.readLine();
-			
-			//System.out.println("Please enter the language of the archive: ");
-			//String language = br.readLine();
-			
-			//System.out.println("Please enter the publishing house of the archive: ");
-			//String publishingHouse = br.readLine();
+			System.out.println("Please enter the code of the archive: ");
+			String code = br.readLine();
 			
 			System.out.println("Please enter the id of the user: ");
 			String id = br.readLine();
 
-			int rentResult = library.rentFile(id, fileName);
+			int rentResult = library.rentFile(id, code);
 			
 			if(rentResult == 0)
 				System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
 			else if(rentResult == -1)
-				System.out.println("User id " + id + " not found.\n");
+				System.out.println("User id " + id + " not found.\nTry \"show users\" to see all the users codes");
 			else if(rentResult == -2)
-				System.out.println("File " + fileName + " not found.\n");
+				System.out.println("File code " + code + " not found.\nTry \"show files\" to see all the files codes, or \"show filename <name>\" to see only the books with title <name>.");
 			else if(rentResult == -3)
-				System.out.println("The book " + fileName + " is already rented, and there are no copies available.\n");
+				System.out.println("The book with id " + code + " is already rented, and there are no copies available.\n");
 			else if(rentResult == -4)
 				System.out.println("User id " + id + " already has max number of rented files.\n");
 			else if(rentResult == -5)
-				System.out.println("User id " + id + " doesn't have permission to rent the file " + fileName + ".\n");
+				System.out.println("User id " + id + " doesn't have permission to rent the file " + code + ".\n");
 			else if(rentResult == -6)
-				System.out.println("User id " + id + " cant rent the file " + fileName + " because he/she is banned.\n");
+				System.out.println("User id " + id + " cant rent the file " + code + " because he/she is banned.\n");
 			else		
 				System.out.println("File rented !\n");
 		}
@@ -228,28 +223,22 @@ public class LibrarySystem {
 
 	public void commandRefund(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive: ");
-			String fileName = br.readLine();
-			
-			//System.out.println("Please enter the language of the archive: ");
-			//String language = br.readLine();
-			
-			//System.out.println("Please enter the publishing house of the archive: ");
-			//String publishingHouse = br.readLine();
-			
+			System.out.println("Please enter the code of the archive: ");
+			String code = br.readLine();
+
 			System.out.println("Please enter the id of the user: ");
 			String id = br.readLine();
 
-			int refundResult = library.refundFile(id, fileName);
+			int refundResult = library.refundFile(id, code);
 
 			if(refundResult == 0)
 				System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
 			if(refundResult == -1)
 				System.out.println("User id " + id + " not found.\n");
 			else if(refundResult == -2)
-				System.out.println("File " + fileName + " not found.\n");
+				System.out.println("File id " + code + " not found.\n");
 			else if(refundResult == -3)
-				System.out.println("The user doesnt have this book.\n");
+				System.out.println("The user doesnt have this file.\n");
 			else		
 				System.out.println("File refunded !\n");
 		}
@@ -261,26 +250,49 @@ public class LibrarySystem {
 	public void commandShow(String[] parts){
 		if(parts[1].equals("users")){
 			if(parts.length < 3)
-				library.showUsers();
+				library.showUsers((User u) -> true);
 			else if(parts[2].equals("added"))
 				library.showUsersAdded();
 			else
-				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added] [filename <name>].\n");
 		}
 		else if(parts[1].equals("files")){
 			if(parts.length < 3)
-				library.showFiles();
+				library.showFiles((String s) -> true);
 			else if(parts[2].equals("added"))
 				library.showFilesAdded();
 			else
-				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added] [filename <name>].\n");
+		}
+		else if(parts[1].equals("filename") && parts.length > 2)
+			library.showFiles(s -> {
+				Collator c = Collator.getInstance();
+				c.setStrength(Collator.PRIMARY);
+				return c.compare(s.substring(0, s.indexOf(",")), rebuildName(parts)) == 0;
+			});
+		else if(parts[1].equals("username") && parts.length > 2){
+			library.showUsers(u -> {
+				Collator c = Collator.getInstance();
+				c.setStrength(Collator.PRIMARY);
+				return c.compare(u.getName(), rebuildName(parts)) == 0;
+			});
 		}
 		else if(parts[1].equals("rents"))
 			library.showRents();
 		else if(parts[1].equals("refunds"))
 			library.showRefunds();
 		else
-			System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+			System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added] [filename <name>].\n");
+	}
+	
+	private String rebuildName(String[] parts){
+		String str = "";
+		for(int i = 2; i < parts.length; i++){
+			str += parts[i];
+			if(i != parts.length -1)
+				str += " ";
+		}
+		return str;
 	}
 
 	public void _help(){
@@ -289,6 +301,7 @@ public class LibrarySystem {
 		System.out.println("**       rent file                                                                 **");
 		System.out.println("**       refund file                                                               **");
 		System.out.println("**       show <type> [users] [files] [rents] [refunds] [users added] [files added] **");
+		System.out.println("**       show [filename] [username] <name>                                         **");
 		System.out.println("**       set date                                                                  **");
 		System.out.println("**       reset                                                                     **");
 		System.out.println("*************************************************************************************\n");	
