@@ -5,6 +5,8 @@ import java.time.LocalDate;
 public interface Rentable {
 	String getName();
 	String getType();
+	String getPublishingHouse();
+	String getLanguage();
 	
 	boolean needsPermission();
 	

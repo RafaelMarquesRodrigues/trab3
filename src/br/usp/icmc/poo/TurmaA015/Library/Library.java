@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.io.*;
 import java.time.*;
 import java.time.Period;
+import java.util.function.*;
 
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
@@ -31,29 +32,29 @@ public class Library implements Organizer {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
 
-		File file = new File("src/br/usp/icmc/poo/TurmaA015/Library/logs/users.log");
-		System.out.println(file.getAbsolutePath());
-		usersLog = file.getAbsolutePath();
+		File file = new File("logs/users.log");
+		System.out.println(file.getPath());
+		usersLog = file.getPath();
 
-		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/logs/files.log");
-		System.out.println(file.getAbsolutePath());
-		filesLog = file.getAbsolutePath();
+		file = new File("logs/files.log");
+		System.out.println(file.getPath());
+		filesLog = file.getPath();
 
-		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/users.csv");
-		System.out.println(file.getAbsolutePath());
-		usersData = file.getAbsolutePath();
+		file = new File("data/users.csv");
+		System.out.println(file.getPath());
+		usersData = file.getPath();
 
-		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/files.csv");
-		System.out.println(file.getAbsolutePath());
-		filesData = file.getAbsolutePath();
+		file = new File("data/files.csv");
+		System.out.println(file.getPath());
+		filesData = file.getPath();
 
-		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/rents.csv");
-		System.out.println(file.getAbsolutePath());
-		rentsData = file.getAbsolutePath();
+		file = new File("data/rents.csv");
+		System.out.println(file.getPath());
+		rentsData = file.getPath();
 
-		file = new File("src/br/usp/icmc/poo/TurmaA015/Library/data/refunds.csv");
-		System.out.println(file.getAbsolutePath());
-		refundsData = file.getAbsolutePath();
+		file = new File("data/refunds.csv");
+		System.out.println(file.getPath());
+		refundsData = file.getPath();
 
 		systemDate = LocalDate.now();
 		today = systemDate;
@@ -158,7 +159,7 @@ public class Library implements Organizer {
 		if(readOnly)
 			return 0;
 
-		User newUser = getUser(u.getName());
+		User newUser = getUser(u.getId());
 	
 		if(newUser == null){
 			users.add(u);
@@ -169,19 +170,19 @@ public class Library implements Organizer {
 		return -1;
 	}
 
-	public int rentFile(String userName, String fileName){
+	public int rentFile(String id, String fileName, String language, String publishingHouse){
 		if(readOnly)
 			return 0;
 
-		User user = getUser(userName);
-		Rentable rentedFile = getFile(fileName);
+		User user = getUser(id);
+		Rentable rentedFile = getFile(fileName, language, publishingHouse);
 
 		if(user == null)												//não existe a pessoa requisitada
 			return -1;
 		if(rentedFile == null)											//não existe o livro requisitado
 			return -2;
 		
-		rentedFile = getAvailableFile(fileName);
+		rentedFile = getAvailableFile(fileName, language, publishingHouse);
 
 		if(rentedFile == null)											//livro indisponível
 			return -3;
@@ -206,19 +207,19 @@ public class Library implements Organizer {
 		return 1;	//ok
 	}
 
-	public int refundFile(String userName, String fileName){
+	public int refundFile(String id, String fileName, String language, String publishingHouse){
 		if(readOnly)
 			return 0;
 
-		User user = getUser(userName);
-		Rentable rentedFile = getFile(fileName);
+		User user = getUser(id);
+		Rentable rentedFile = getFile(fileName, language, publishingHouse);
 		
 		if(user == null)						//não existe a pessoa requisitada
 			return -1;
 		if(rentedFile == null)					//não existe o livro requisitado
 			return -2;
 
-		rentedFile = getRentedFile(fileName, userName);
+		rentedFile = getRentedFile(id, fileName, language, publishingHouse);
 
 		if(!user.hasFile(rentedFile))			//se o usuário não tiver o livro que ele está tentando devolver
 			return -3;
@@ -274,11 +275,19 @@ public class Library implements Organizer {
 		//mapeia cada nome de livro com sua respectiva quantidade de cópias
 		Map<String, Long> filesMap = files 
 									.stream()
-									.collect(Collectors.groupingBy(Rentable::getName, Collectors.mapping(Rentable::getName, Collectors.counting())));
-		System.out.println("\n================================================\n");
+									.collect(Collectors.groupingBy((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.mapping((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.counting())));
+		
 		if(files.size() > 0){
 			filesMap
-				.forEach((k, v) -> System.out.println(k + " Copies: " + v));
+				.forEach((k, v) -> {
+					System.out.println("\n================================================\n");
+					String[] parts = k.split(",");
+					Rentable r = getFile(parts[1], parts[2], parts[3]);
+					System.out.println(r.getType() + " \"" + r.getName() + "\"");
+					System.out.println("Language: " + r.getLanguage());
+					System.out.println("Publishing house: " + r.getPublishingHouse());
+					System.out.println("Copies at stock: " + v);
+				});
 		}
 		else
 			System.out.println("There are no files at the library yet.");
@@ -303,7 +312,7 @@ public class Library implements Organizer {
 			while((input = br.readLine()) != null){
 				parts = input.split(",");
 
-				if(parts[3].equals(dateToString(systemDate))){
+				if(parts[5].equals(dateToString(systemDate))){
 					userAdded = true;
 					System.out.println(parts[0] + " " + parts[1] + " was added in " + parts[3]);
 				}
@@ -341,7 +350,7 @@ public class Library implements Organizer {
 			while((input = br.readLine()) != null){
 				parts = input.split(",");
 
-				if(parts[3].equals(dateToString(systemDate))){
+				if(parts[5].equals(dateToString(systemDate))){
 					fileAdded = true;
 					System.out.println(parts[0] + " " + parts[1] + " was added in " + parts[3]);
 				}
@@ -440,48 +449,39 @@ public class Library implements Organizer {
 	}
 	
 	//retorna um arquivo com nome "name" disponível para ser alugado, ou null caso não exista algum que satisfaça as condições
-	public Rentable getAvailableFile(String name){
-		return files
-			.stream()
-			.filter(f -> f.getName().equals(name) && f.isAvailable())
-			.findAny()
-			.orElse(null);	
+	public Rentable getAvailableFile(String fileName, String language, String publishingHouse){
+		return _hasFile(f -> f.isAvailable() && f.getName().equals(fileName) && f.getLanguage().equals(language) && f.getPublishingHouse().equals(publishingHouse)).orElse(null);	
 	}
 
 	//retorna um arquivo com nome "fileName" já alugado pelo usuário com nome "userName", ou null caso não exista algum que satisfaça as condições
-	public Rentable getRentedFile(String fileName, String userName){
-		User u = getUser(userName);
-
-		return files
-			.stream()
-			.filter(f -> f.getName().equals(fileName) && u.hasFile(f))
-			.findAny()
-			.orElse(null);	
+	public Rentable getRentedFile(String id, String fileName, String language, String publishingHouse){
+		if(getUser(id).hasFile(getFile(fileName, language, publishingHouse))){
+			return getFile(fileName, language, publishingHouse);
+		}
+		return null;
+	}
+	
+	public User getUser(String id){
+		return _hasUser(u -> u.getId().equals(id)).orElse(null);
 	}
 
-	//retorna, se existir, um arquivo com nome "name"
-	public Rentable getFile(String name){
-		return _hasFile(name).orElse(null);
-	}
-
-	//retorna, se existir, um usuario com nome "name"
-	public User getUser(String name){
-		return _hasUser(name).orElse(null);
+	public Rentable getFile(String name, String language, String publishingHouse){
+		return _hasFile(r -> r.getName().equals(name) && r.getLanguage().equals(language) && r.getPublishingHouse().equals(publishingHouse)).orElse(null);
 	}
 
 	//ambas as funções _has retornam o primeiro elemento compatível que encontrarem, porque nao sao aceitos duas pessoas com mesmo nome na biblioteca
 	//e os livros com nomes repetidos sao adicionados como cópias de um mesmo livro
-	private Optional<Rentable> _hasFile(String str){
+	private Optional<Rentable> _hasFile(Predicate<Rentable> filter){
 		return files
 			.stream()
-			.filter(f -> f.getName().equals(str))
+			.filter(filter)
 			.findAny();
 	}
 
-	private Optional<User> _hasUser(String str){
+	private Optional<User> _hasUser(Predicate<User> filter){
 		return users
 			.stream()
-			.filter(u -> u.getName().equals(str))
+			.filter(filter)
 			.findAny();	
 	}
 
@@ -517,16 +517,16 @@ public class Library implements Organizer {
 				content = input.split(",");
 
 				if(content[0].equals("Student"))
-					user = new Student(content[1], stringToDate(content[3]));
+					user = new Student(content[1], content[2], content[3], stringToDate(content[5]));
 				else if(content[0].equals("Teacher"))
-					user = new Teacher(content[1], stringToDate(content[3]));
+					user = new Teacher(content[1], content[2], content[3], stringToDate(content[5]));
 				else if(content[0].equals("Community"))
-					user = new Community(content[1], stringToDate(content[3]));
+					user = new Community(content[1], content[2], content[3], stringToDate(content[5]));
 		
 				addUser(user);
 
-				if(!content[2].equals("null")){					//caso o usuário tenha uma data de ban, recolocamos ela no status do usuário no programa
-					user.setBan(stringToDate(content[2]));
+				if(!content[4].equals("null")){					//caso o usuário tenha uma data de ban, recolocamos ela no status do usuário no programa
+					user.setBan(stringToDate(content[4]));
 					
 					//se o dia atual for depois do dia máximo de ban, retiriamos o ban do usuário
 					if(systemDate.isAfter(user.getBanTime())){
@@ -554,17 +554,17 @@ public class Library implements Organizer {
 				Rentable r;
 
 				if(content[1].equals("Book"))
-					r = new Book(content[2], stringToDate(content[4]));
+					r = new Book(content[2], content[3], content[4], stringToDate(content[5]));
 				else
-					r = new Note(content[2], stringToDate(content[4]));
+					r = new Note(content[2], content[3], content[4], stringToDate(content[5]));
 
 					addFile(r);
 					
 					if(!content[0].equals("none")){
-						rentFile(content[0], content[2]);
-						r.setRentExpirationDate(stringToDate(content[3]));
+						rentFile(content[0], content[2], content[3], content[4]);
+						r.setRentExpirationDate(stringToDate(content[6]));
 
-						time = dateDifference(dateToString(systemDate), content[3]);
+						time = dateDifference(dateToString(systemDate), content[6]);
 
 						//se a diferença entre a data atual e a data máxima de entrega do livro for positiva, o usuário atrasou a devolução e deve ser banido
 						if(time > 0){
@@ -630,9 +630,10 @@ public class Library implements Organizer {
 			data = "";
 			data += u.getType() + separator;
 			data += u.getName() + separator;
+			data += u.getId() + separator;
+			data += u.getNationality() + separator;
 			data += dateToString(u.getBanTime()) + separator;
 			data += dateToString(u.getCreationDate());
-
 			writeLog(data, usersData, type);				//escreve o tipo e o nome em um arquivo csv
 			if(!type) type = true;							//reutiliza o arquivo de dados criado na passagem anterior
 		}
@@ -650,12 +651,14 @@ public class Library implements Organizer {
 						.stream()
 						.filter(u -> u.hasFile(r))
 						.findAny()
-						.map(User::getName)
+						.map(User::getId)
 						.orElse("none") + separator;
 			data += r.getType() + separator;
 			data += r.getName() + separator;
-			data += dateToString(r.getRentExpirationDate()) + separator;
-			data += dateToString(r.getCreationDate());
+			data += r.getLanguage() + separator;
+			data += r.getPublishingHouse() + separator;
+			data += dateToString(r.getCreationDate()) + separator;
+			data += dateToString(r.getRentExpirationDate());
 
 			writeLog(data, filesData, type);				//escreve o tipo e o nome em um arquivo csv
 			if(!type) type = true;

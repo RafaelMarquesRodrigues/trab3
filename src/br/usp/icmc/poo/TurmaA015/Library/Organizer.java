@@ -11,12 +11,8 @@ public interface Organizer {
 	int addFile(Rentable r);
 	int addUser(User u);
 
-	//métodos para verificar as pessoas que tem algum arquivo do local e quais arquivos existem no local
-	User getUser(String name);
-	Rentable getFile(String name);
-
-	int rentFile(String name, String str);
-	int refundFile(String name, String str);
+	int rentFile(String id, String fileName, String language, String publishingHouse);
+	int refundFile(String id, String fileName, String language, String publishingHouse);
 
 	void exit();
 	void begin();

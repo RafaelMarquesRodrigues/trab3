@@ -5,14 +5,18 @@ import java.time.LocalDate;
 //classe criada para implementar métodos que são comuns para todos os tipos de objeto "alugáveis"
 abstract class AbstractRentable implements Rentable {
 	protected String name;
+	protected String language;
+	protected String publishingHouse;
 	protected boolean permission;
 	protected LocalDate rentExpirationDate;
 	protected LocalDate creationDate;
 	protected boolean available;
 	protected int delay;
 
-	public AbstractRentable(String str, LocalDate date){
-		name = str;
+	public AbstractRentable(String filename, String language, String publishingHouse, LocalDate date){
+		name = filename;
+		this.language = language;
+		this.publishingHouse = publishingHouse;
 		rentExpirationDate = null;
 		delay = 0;
 		available = true;
@@ -64,8 +68,12 @@ abstract class AbstractRentable implements Rentable {
 	public String getName(){
 		return name;
 	}
-
-	public String toString(){
-		return name;
+	
+	public String getLanguage(){
+		return language;
+	}
+	
+	public String getPublishingHouse(){
+		return publishingHouse;
 	}
 }

@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 public class Community extends AbstractUser {
 
-	public Community(String str, LocalDate date){
-		super(str, date);
+	public Community(String name, String id, String nationality, LocalDate date){
+		super(name, id, nationality, date);
 		maxRentTime = 15;
 		maxFiles = 2;
 		permission = false;

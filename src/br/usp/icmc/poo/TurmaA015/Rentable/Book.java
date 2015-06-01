@@ -4,8 +4,8 @@ import java.time.LocalDate;
 
 public class Book extends AbstractRentable {
 
-	public Book(String str, LocalDate date){
-		super(str, date);						//chama o construtor da classe que está estendendo
+	public Book(String filename, String language, String publishingHouse, LocalDate date){
+		super(filename, language, publishingHouse, date);	//chama o construtor da classe que está estendendo
 		permission = false;
 	}
 
