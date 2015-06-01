@@ -193,16 +193,16 @@ public class LibrarySystem {
 			System.out.println("Please enter the name of the archive: ");
 			String fileName = br.readLine();
 			
-			System.out.println("Please enter the language of the archive: ");
-			String language = br.readLine();
+			//System.out.println("Please enter the language of the archive: ");
+			//String language = br.readLine();
 			
-			System.out.println("Please enter the publishing house of the archive: ");
-			String publishingHouse = br.readLine();
+			//System.out.println("Please enter the publishing house of the archive: ");
+			//String publishingHouse = br.readLine();
 			
 			System.out.println("Please enter the id of the user: ");
 			String id = br.readLine();
 
-			int rentResult = library.rentFile(id, fileName, language, publishingHouse);
+			int rentResult = library.rentFile(id, fileName);
 			
 			if(rentResult == 0)
 				System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
@@ -231,16 +231,16 @@ public class LibrarySystem {
 			System.out.println("Please enter the name of the archive: ");
 			String fileName = br.readLine();
 			
-			System.out.println("Please enter the language of the archive: ");
-			String language = br.readLine();
+			//System.out.println("Please enter the language of the archive: ");
+			//String language = br.readLine();
 			
-			System.out.println("Please enter the publishing house of the archive: ");
-			String publishingHouse = br.readLine();
+			//System.out.println("Please enter the publishing house of the archive: ");
+			//String publishingHouse = br.readLine();
 			
 			System.out.println("Please enter the id of the user: ");
 			String id = br.readLine();
 
-			int refundResult = library.refundFile(id, fileName, language, publishingHouse);
+			int refundResult = library.refundFile(id, fileName);
 
 			if(refundResult == 0)
 				System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");

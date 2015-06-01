@@ -11,8 +11,8 @@ public interface Organizer {
 	int addFile(Rentable r);
 	int addUser(User u);
 
-	int rentFile(String id, String fileName, String language, String publishingHouse);
-	int refundFile(String id, String fileName, String language, String publishingHouse);
+	int rentFile(String id, String index);
+	int refundFile(String id, String index);
 
 	void exit();
 	void begin();

@@ -17,8 +17,6 @@ import java.util.function.*;
 public class Library implements Organizer {
 	private ArrayList<User> users;			//guarda os dados de cada usuário
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
-	private String usersLog;
-	private String filesLog;
 	private String refundsData;
 	private String rentsData;
 	private String usersData;
@@ -32,13 +30,8 @@ public class Library implements Organizer {
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
 
-		File file = new File("logs/users.log");
-		usersLog = file.getPath();
 
-		file = new File("logs/files.log");
-		filesLog = file.getPath();
-
-		file = new File("data/users.csv");
+		File file = new File("data/users.csv");
 		usersData = file.getPath();
 
 		file = new File("data/files.csv");
@@ -140,7 +133,6 @@ public class Library implements Organizer {
 			return 0;
 
 		files.add(r);
-		writeFilesLog(null, r, "new");
 		
 		return 1;
 	}
@@ -154,26 +146,25 @@ public class Library implements Organizer {
 	
 		if(newUser == null){
 			users.add(u);
-			writeUsersLog(u, null, "new");
 			return 1;
 		}
 
 		return -1;
 	}
 
-	public int rentFile(String id, String fileName, String language, String publishingHouse){
+	public int rentFile(String id, String index){
 		if(readOnly)
 			return 0;
 
 		User user = getUser(id);
-		Rentable rentedFile = getFile(fileName, language, publishingHouse);
+		Rentable rentedFile = getFileAtIndex(index);
 
 		if(user == null)												//não existe a pessoa requisitada
 			return -1;
 		if(rentedFile == null)											//não existe o livro requisitado
 			return -2;
 		
-		rentedFile = getAvailableFile(fileName, language, publishingHouse);
+		rentedFile = getAvailableFileAtIndex(index);
 
 		if(rentedFile == null)											//livro indisponível
 			return -3;
@@ -191,26 +182,23 @@ public class Library implements Organizer {
 
 		if(!systemLoading)
 			writeEvent(user, rentedFile, rentsData);
-
-		writeUsersLog(user, rentedFile, "rent");									//escreve o que aconteceu no arquivo de logs		
-		writeFilesLog(user, rentedFile, "rent");
 		
 		return 1;	//ok
 	}
 
-	public int refundFile(String id, String fileName, String language, String publishingHouse){
+	public int refundFile(String id, String index){
 		if(readOnly)
 			return 0;
 
 		User user = getUser(id);
-		Rentable rentedFile = getFile(fileName, language, publishingHouse);
+		Rentable rentedFile = getFileAtIndex(index);
 		
 		if(user == null)						//não existe a pessoa requisitada
 			return -1;
 		if(rentedFile == null)					//não existe o livro requisitado
 			return -2;
 
-		rentedFile = getRentedFile(id, fileName, language, publishingHouse);
+		rentedFile = getRentedFileAtIndex(id, index);
 
 		if(!user.hasFile(rentedFile))			//se o usuário não tiver o livro que ele está tentando devolver
 			return -3;
@@ -221,9 +209,6 @@ public class Library implements Organizer {
 	
 		if(!systemLoading)
 			writeEvent(user, rentedFile, refundsData);
-
-		writeUsersLog(user, rentedFile, "refund");			
-		writeFilesLog(user, rentedFile, "refund");
 
 		return 1;
 	}
@@ -241,7 +226,7 @@ public class Library implements Organizer {
 
 				for(Rentable r : files){
 					if(user.hasFile(r)){
-						System.out.print(r.getType() + " " + r.getName() + " - Expiration date: " + dateToString(r.getRentExpirationDate()));
+						System.out.print(r.getType() + " " + r.getName() + " - Expiration date: " + dateToString(r.getRentExpirationDate()) + " - File code: " + files.indexOf(r));
 						
 						if(r.getDelay() != 0)
 							System.out.print(" (Please refund this book to the library as soon as possible.)");
@@ -269,21 +254,33 @@ public class Library implements Organizer {
 									.collect(Collectors.groupingBy((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.mapping((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.counting())));
 		
 		if(files.size() > 0){
-			filesMap
-				.forEach((k, v) -> {
-					System.out.println("\n================================================\n");
-					String[] parts = k.split(",");
+			filesMap.keySet()
+				.stream()
+				.sorted(String.CASE_INSENSITIVE_ORDER.reversed())
+				.forEach((s) -> {
+					String parts[] = s.split(",");
 					Rentable r = getFile(parts[1], parts[2], parts[3]);
+					System.out.println("\n================================================\n");
 					System.out.println(r.getType() + " \"" + r.getName() + "\"");
 					System.out.println("Language: " + r.getLanguage());
 					System.out.println("Publishing house: " + r.getPublishingHouse());
-					System.out.println("Copies at stock: " + v);
+					System.out.println("Copies: " + filesMap.get(s));
+					System.out.println("File code: " + (getIndexOfAvailableCopy(r) == -1 ? "File not available." : getIndexOfAvailableCopy(r) + "."));
 				});
 		}
 		else
 			System.out.println("There are no files at the library yet.");
 			
 		System.out.println("\n================================================\n");
+	}
+	
+	private int getIndexOfAvailableCopy(Rentable r){
+		for(Rentable file : files){
+			if(file.getName().equals(r.getName()) && file.getLanguage().equals(r.getLanguage()) && file.getPublishingHouse().equals(r.getPublishingHouse()) && file.isAvailable())
+				return files.indexOf(file);
+		}
+		
+		return -1;
 	}
 
 	public void showUsersAdded(){
@@ -452,6 +449,23 @@ public class Library implements Organizer {
 		return null;
 	}
 	
+	public Rentable getRentedFileAtIndex(String id, String index){
+		if(getUser(id).hasFile(files.get(Integer.parseInt(index)))){
+			return files.get(Integer.parseInt(index));
+		}		
+		return null;
+	}
+	
+	public Rentable getFileAtIndex(String index){
+		return files.get(Integer.parseInt(index));
+	}
+	
+	public Rentable getAvailableFileAtIndex(String index){
+		if(files.get(Integer.parseInt(index)).isAvailable())
+				return files.get(Integer.parseInt(index));
+		return null;
+	}
+	
 	public User getUser(String id){
 		return _hasUser(u -> u.getId().equals(id)).orElse(null);
 	}
@@ -552,7 +566,7 @@ public class Library implements Organizer {
 					addFile(r);
 					
 					if(!content[0].equals("none")){
-						rentFile(content[0], content[2], content[3], content[4]);
+					//	rentFile(content[0], content[2], content[3], content[4]);
 						r.setRentExpirationDate(stringToDate(content[6]));
 
 						time = stringToDate(content[6]).until(systemDate, ChronoUnit.DAYS);
@@ -638,34 +652,6 @@ public class Library implements Organizer {
 
 			writeLog(data, filesData, type);				//escreve o tipo e o nome em um arquivo csv
 			if(!type) type = true;
-		}
-	}
-
-	private void writeUsersLog(User u, Rentable r, String str){
-		if(str.equals("new"))
-			writeLog("Added " + u.getType().toLowerCase() + " \"" + u.getName() + "\" at " + dateToString(systemDate) + ".", usersLog, true);
-		else if(str.equals("rent")){
-			writeLog("Rented " + r.getType().toLowerCase() + " \"" + r.getName() + "\" for " + u.getType().toLowerCase() + " " + u.getName() + " at " + 
-				dateToString(systemDate) + ". User has " + u.getFilesQuantity() + " files now.", usersLog, true);	
-		}
-		else{
-			writeLog(u.getType() + " " + u.getName() + " refunded " + r.getType().toLowerCase() + " \"" + r.getName() + "\" at " + dateToString(systemDate) + 
-														". User has " + u.getFilesQuantity() + " files now.", usersLog, true);	
-		}
-	}
-
-	private void writeFilesLog(User u, Rentable r, String str){
-		if(str.equals("new"))
-			writeLog("Added new " + r.getType().toLowerCase() + " \"" + r.getName() + "\" at " + dateToString(systemDate) + ".", filesLog, true);
-		else if(str.equals("copy"))
-			writeLog("Added copy of " + r.getType().toLowerCase() + " \"" + r.getName() + "\" at " + dateToString(systemDate) + ".", filesLog, true);
-		else if(str.equals("rent")){
-			writeLog(r.getType() + " \"" + r.getName() + "\" was rented by " + u.getType().toLowerCase() + " " + u.getName() + " at " + dateToString(systemDate) +
-																													"." , filesLog, true);
-		}
-		else{
-			writeLog(r.getType() + " \"" + r.getName() + "\" was refunded by " + u.getType().toLowerCase() + " " + u.getName() + " at " + dateToString(systemDate)
-			 																										+ ".", filesLog, true);	
 		}
 	}
 
