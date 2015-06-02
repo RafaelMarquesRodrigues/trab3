@@ -463,20 +463,20 @@ public class Library implements Organizer {
 	}
 
 	public Rentable getRentedFileAtIndex(String id, String index){
-		if(files.size() > Integer.parseInt(index) && getUser(id).hasFile(files.get(Integer.parseInt(index)))){
+		if(files.size() > Integer.parseInt(index) && getUser(id).hasFile(files.get(Integer.parseInt(index))) && Integer.parseInt(index) >= 0){
 			return files.get(Integer.parseInt(index));
 		}		
 		return null;
 	}
 	
 	public Rentable getFileAtIndex(String index){
-		if(files.size() > Integer.parseInt(index) && Integer.parseInt(index) > 0)
+		if(files.size() > Integer.parseInt(index) && Integer.parseInt(index) >= 0)
 			return files.get(Integer.parseInt(index));
 		return null;
 	}
 	
 	public Rentable getAvailableFileAtIndex(String index){
-		if(files.size() > Integer.parseInt(index) && files.get(Integer.parseInt(index)).isAvailable())
+		if(files.size() > Integer.parseInt(index) && files.get(Integer.parseInt(index)).isAvailable() && Integer.parseInt(index) >= 0)
 				return files.get(Integer.parseInt(index));
 		return null;
 	}
