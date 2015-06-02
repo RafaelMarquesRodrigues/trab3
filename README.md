@@ -29,5 +29,10 @@
 *If the date given is after the current day, others runs of the program shall tell the user what is the atual date for the system to operate correctly (e.g If today is 02/06/2015, and we input 05/06/2015, then we shutdown the program  and restart it the library will not make any alterations until the date is set to 05/06/2015 or after, again)*<br>
 (aditional information to complete the command will be asked later)<br><br>
 
+**help**<br>
+*Shows all the available commands and the formats for them.*<br><br>
+
 **reset**<br>
 *Resets the library completly. The user will be asked sure if he/she want to perform the operation.*<br><br>
+
+###Further tips will be shown at run time !
