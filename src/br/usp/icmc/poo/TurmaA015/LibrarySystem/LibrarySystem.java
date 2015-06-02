@@ -4,12 +4,15 @@ package br.usp.icmc.poo.TurmaA015.LibrarySystem;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 import br.usp.icmc.poo.TurmaA015.Library.*;
+import br.usp.icmc.poo.TurmaA015.MessageBundle.MessageBundle;
 
 import java.io.*;
+import java.text.Collator;
 
 public class LibrarySystem {
 	private Organizer library;
 	private BufferedReader br;
+        private MessageBundle messageBundle;
 
 	public static void main(String[] args) {
 		LibrarySystem program = new LibrarySystem();
@@ -18,14 +21,13 @@ public class LibrarySystem {
 
 	public void start(){
 
-		System.out.println("System starting...");
+                messageBundle = new MessageBundle("pt", "BR");
+          
+		System.out.println(messageBundle.get("start"));
 
 		br = new BufferedReader(new InputStreamReader(System.in));
 
-
-		System.out.println("Initializing library...");
-
-		library = new Library();
+		library = new Library(messageBundle);
 		library.begin();
 		
 		welcomeScreen();
@@ -44,7 +46,7 @@ public class LibrarySystem {
 					if(parts.length > 1)
 						commandAdd(parts);
 					else
-						System.out.println("Usage \"command add\": add <type> [book] [note] [student] [teacher] [community].\n");
+						System.out.println(messageBundle.get("add_usage"));
 				}
 				
 				else if(command.equals("rent file"))
@@ -61,45 +63,47 @@ public class LibrarySystem {
 					if(parts.length > 1)
 						commandShow(parts);
 					else
-						System.out.println("Usage \"command show\": show <type> [users] [files] [rents] [refunds].\n");
+						System.out.println(messageBundle.get("show_usage"));
 				
 				}
+				//limpa todos os arquivos da biblioteca
 				else if(command.equals("reset")){
-					System.out.println("Are you sure you want to reset the library ? All information will be lost after the process. [Yes/No]");
+					System.out.println(messageBundle.get("ask_reset"));
 					try{
-						if(br.readLine().equals("yes")){
+						if(br.readLine().equals(messageBundle.get("yes"))){
 							if(library.reset() == 1)
-								System.out.println("Reseting library...\n");
+								System.out.println(messageBundle.get("reset_reset"));
 							else
-								System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
+								System.out.println(messageBundle.get("read_mode1") + library.getDate() + messageBundle.get("read_mode2"));
 						}
 					}
 					catch(IOException e){
-						System.out.println("Error trying to get user input.");
+						System.out.println(messageBundle.get("input_error"));
 					}
 				}
 				else if(command.equals("help"))
 					help();
 
 				else if(!command.equals("exit"))
-					System.out.println("Unrecognized command. Try \"help\" to see available commands.\n");
+					System.out.println(messageBundle.get("unknown_input"));
 
 			}
 		}
 		catch(IOException e){
-			System.out.println("Error trying to get user command.\n");
+			System.out.println(messageBundle.get("command_error"));
 		}
 
 		library.exit();
 	}
-
+	
+	//escolhe a data para o sistema
 	public void setDate(){
-		System.out.println("Select the date to start the system: (xx/xx/xxxx)");
+		System.out.println(messageBundle.get("date_select"));
 
 		while(!readDate())
-			System.out.println("Please enter a valid date. (xx/xx/xxxx)");
+			System.out.println(messageBundle.get("date_invalid"));
 
-		System.out.println("Changed date successfully.\n");
+		System.out.println(messageBundle.get("date_success"));
 	}
 
 	private boolean readDate(){
@@ -118,162 +122,191 @@ public class LibrarySystem {
 		
 		}
 		catch(IOException e){
-			System.out.println("Error trying to read date.");
+			System.out.println(messageBundle.get("date_error"));
 		}
 
 		return false;
 	}
 
+	//metodo para lidar com um novo arquivo ou usuario
 	public void commandAdd(String[] parts){
 		try{
-			int addResult;
-
-			if(parts[1].equals("book")){
-				System.out.println("Please enter the name of the book you want to add: ");
-				if(library.addFile(new Book(br.readLine(), library.stringToDate(library.getDate()))) == 1)
-					System.out.println("Added new book successfully.\n");
+			if(parts[1].equals("book") || parts[1].equals("note")){
+				System.out.println(messageBundle.get("file_name"));
+				String filename = br.readLine();
+				
+				System.out.println(messageBundle.get("file_language"));
+				String language = br.readLine();
+				
+				System.out.println(messageBundle.get("file_house"));
+				
+				if(parts[1].equals("book")){
+					if(library.addFile(new Book(filename, language, br.readLine(), library.stringToDate(library.getDate()))) == 1)
+						System.out.println(messageBundle.get("book_add"));
+					else
+						System.out.println(messageBundle.get("read_mode1") + library.getDate() + messageBundle.get("read_mode2"));
+				}
+				else if(parts[1].equals("note")){
+					if(library.addFile(new Note(filename, language, br.readLine(), library.stringToDate(library.getDate()))) == 1)
+						System.out.println(messageBundle.get("note_add"));
+					else
+						System.out.println(messageBundle.get("read_mode1") + library.getDate() + messageBundle.get("read_mode2"));
+				}
 				else
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
+					System.out.println(messageBundle.get("add_usage"));
 			}
-			else if(parts[1].equals("note")){
-				System.out.println("Please enter the name of the note you want to add: ");
-				if(library.addFile(new Note(br.readLine(), library.stringToDate(library.getDate()))) == 1)
-					System.out.println("Added new book successfully.\n");
+			else if(parts[1].equals("teacher") || parts[1].equals("community") || parts[1].equals("student")){
+				int addResult = -1;
+				
+				System.out.println(messageBundle.get("user_name"));
+				String username = br.readLine();
+				
+				System.out.println(messageBundle.get("user_nationality"));
+				String nationality = br.readLine();
+				
+				System.out.println(messageBundle.get("user_ID"));
+				
+				if(parts[1].equals("student"))
+					addResult = library.addUser(new Student(username, br.readLine(), nationality, library.stringToDate(library.getDate())));		
+				else if(parts[1].equals("teacher"))
+					addResult = library.addUser(new Teacher(username, br.readLine(), nationality, library.stringToDate(library.getDate())));
+				else if(parts[1].equals("community"))	
+					addResult = library.addUser(new Community(username, br.readLine(), nationality, library.stringToDate(library.getDate())));
 				else
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
-			}
-			else if(parts[1].equals("student")){
-				System.out.println("Please enter the name of the user you want to add: ");
-
-				addResult = library.addUser(new Student(br.readLine(), library.stringToDate(library.getDate())));
+					System.out.println(messageBundle.get("add_usage"));
 				
 				if(addResult == 1)
-					System.out.println("Added new user successfully.\n");
+					System.out.println(messageBundle.get("user_add"));
 				else if(addResult == 0)
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
+					System.out.println(messageBundle.get("read_mode1") + library.getDate() + messageBundle.get("read_mode2"));
 				else
-					System.out.println("Theres already a student with this name !\n");
-			}
-			else if(parts[1].equals("teacher")){
-				System.out.println("Please enter the name of the user you want to add: ");
-
-				addResult = library.addUser(new Teacher(br.readLine(), library.stringToDate(library.getDate())));
-				
-				if(addResult == 1)
-					System.out.println("Added new user successfully.\n");
-				else if(addResult == 0)
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
-				else
-					System.out.println("Theres already a teacher with this name !\n");
-			}
-			else if(parts[1].equals("community")){
-				System.out.println("Please enter the name of the user you want to add: ");
-
-				addResult = library.addUser(new Community(br.readLine(), library.stringToDate(library.getDate())));
-				
-				if(addResult == 1)
-					System.out.println("Added new user successfully.\n");
-				else if(addResult == 0)
-					System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
-				else
-					System.out.println("Theres already a community with this name !\n");
+					System.out.println(messageBundle.get("user_repeat"));
 			}
 			else
-				System.out.println("Usage \"command add\": add <type> [book] [note] [student] [teacher] [community].");
+				System.out.println(messageBundle.get("add_usage"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to get user input.");
+			System.out.println(messageBundle.get("input_error"));
 		}
 	}
-
+	
+	//metodo para alugar arquivos da biblioteca
 	public void commandRent(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive: ");
-			String fileName = br.readLine();
+			System.out.println(messageBundle.get("rent_code"));
+			String code = br.readLine();
 			
-			System.out.println("Please enter the name of the user: ");
-			String userName = br.readLine();
+			System.out.println(messageBundle.get("rent_ID"));
+			String id = br.readLine();
 
-			int rentResult = library.rentFile(userName, fileName);
-
-			if(rentResult == -1)
-				System.out.println("User " + userName + " not found.\n");
+			int rentResult = library.rentFile(id, code);
+			
+			if(rentResult == 0)
+				System.out.println(messageBundle.get("read_mode1") + library.getDate() + messageBundle.get("read_mode2"));
+			else if(rentResult == -1)
+				System.out.println(messageBundle.get("userID") + id + messageBundle.get("userNotFound"));
 			else if(rentResult == -2)
-				System.out.println("File " + fileName + " not found.\n");
+				System.out.println(messageBundle.get("book_code") + code + messageBundle.get("fileNotFound"));
 			else if(rentResult == -3)
-				System.out.println("The book " + fileName + " is already rented, and there are no copies available.\n");
+				System.out.println(messageBundle.get("thefile") + library.getFileAtIndex(code).getName() + " (Code: " + code  + "");
 			else if(rentResult == -4)
-				System.out.println("User " + userName + " already has max number of rented files.\n");
+				System.out.println(messageBundle.get("user") + library.getUser(id).getName() + " (ID: " + id  + messageBundle.get("fileAlreadyRented"));
 			else if(rentResult == -5)
-				System.out.println("User " + userName + " doesn't have permission to rent the file " + fileName + ".\n");
+				System.out.println(messageBundle.get("user") + library.getUser(id).getName() + " (ID: " + id  + messageBundle.get("noPermission") + library.getFileAtIndex(code).getName() + messageBundle.get("code") + code  + ").\n");
 			else if(rentResult == -6)
-				System.out.println("User " + userName + " cant rent the file " + fileName + " because he/she is banned.\n");
+				System.out.println(messageBundle.get("user") + library.getUser(id).getName() + " (ID: " + id  + messageBundle.get("cantRent") + library.getFileAtIndex(code).getName() + messageBundle.get("code") + code  + messageBundle.get("isBanned"));
 			else		
-				System.out.println("File rented !\n");
+				System.out.println(messageBundle.get("fileRented"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to get user input.");
+			System.out.println(messageBundle.get("input_error"));
 		}
 	}
 
 	public void commandRefund(String[] parts){
 		try{
-			System.out.println("Please enter the name of the archive: ");
-			String fileName = br.readLine();
+			System.out.println(messageBundle.get("rent_code"));
+			String code = br.readLine();
 
-			System.out.println("Please enter the name of the user: ");
-			String userName = br.readLine();
+			System.out.println(messageBundle.get("refund_code"));
+			String id = br.readLine();
 
-			int refundResult = library.refundFile(userName, fileName);
+			int refundResult = library.refundFile(id, code);
 
-			if(refundResult == -1)
-				System.out.println("User " + userName + " not found.\n");
+			if(refundResult == 0)
+				System.out.println(messageBundle.get("read_mode1") + library.getDate() + messageBundle.get("read_mode2"));
+			else if(refundResult == -1)
+				System.out.println(messageBundle.get("userID") + id + messageBundle.get("notFound"));
 			else if(refundResult == -2)
-				System.out.println("File " + fileName + " not found.\n");
+				System.out.println(messageBundle.get("bookCode") + code + messageBundle.get("notFound"));
 			else if(refundResult == -3)
-				System.out.println("The user doesnt have this book.\n");
+				System.out.println(messageBundle.get("userNoHaveFile"));
 			else		
-				System.out.println("File refunded !\n");
+				System.out.println(messageBundle.get("fileRefunded"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to get user input.");
+			System.out.println(messageBundle.get("input_error"));
 		}
 	}
 
 	public void commandShow(String[] parts){
 		if(parts[1].equals("users")){
 			if(parts.length < 3)
-				library.showUsers();
+				library.showUsers((User u) -> true);
 			else if(parts[2].equals("added"))
 				library.showUsersAdded();
 			else
-				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+				System.out.println(messageBundle.get("type_unrecognized"));
 		}
 		else if(parts[1].equals("files")){
 			if(parts.length < 3)
-				library.showFiles();
+				library.showFiles((String s) -> true);
 			else if(parts[2].equals("added"))
 				library.showFilesAdded();
 			else
-				System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+				System.out.println(messageBundle.get("type_unrecognized"));
+		}
+		else if(parts[1].equals("filename") && parts.length > 2)
+			library.showFiles(s -> {
+				Collator c = Collator.getInstance();
+				c.setStrength(Collator.PRIMARY);
+				return c.compare(s.substring(0, s.indexOf(",")), rebuildName(parts)) == 0;
+			});
+		else if(parts[1].equals("username") && parts.length > 2){
+			library.showUsers(u -> {
+				Collator c = Collator.getInstance();
+				c.setStrength(Collator.PRIMARY);
+				return c.compare(u.getName(), rebuildName(parts)) == 0;
+			});
 		}
 		else if(parts[1].equals("rents"))
 			library.showRents();
 		else if(parts[1].equals("refunds"))
 			library.showRefunds();
 		else
-			System.out.println("Unrecognized type. Supported types are [users] [files] [rents] [refunds] [users added] [files added].\n");
+			System.out.println(messageBundle.get("type_unrecognized"));
+	}
+	
+	private String rebuildName(String[] parts){
+		String str = "";
+		for(int i = 2; i < parts.length; i++){
+			str += parts[i];
+			if(i != parts.length -1)
+				str += " ";
+		}
+		return str;
 	}
 
 	public void _help(){
-		System.out.println("**       Library available commands:                                               **");
-		System.out.println("**       add <type> [book] [note] [student] [teacher] [community]                  **");
-		System.out.println("**       rent file                                                                 **");
-		System.out.println("**       refund file                                                               **");
-		System.out.println("**       show <type> [users] [files] [rents] [refunds] [users added] [files added] **");
-		System.out.println("**       set date                                                                  **");
-		System.out.println("**       reset                                                                     **");
-		System.out.println("*************************************************************************************\n");	
+		System.out.println(messageBundle.get("_help1"));
+		System.out.println(messageBundle.get("_help2"));
+		System.out.println(messageBundle.get("_help3"));
+		System.out.println(messageBundle.get("_help4"));
+		System.out.println(messageBundle.get("_help5"));
+		System.out.println(messageBundle.get("_help6"));
+		System.out.println(messageBundle.get("_help7"));
+		System.out.println(messageBundle.get("_help8"));
+		System.out.println(messageBundle.get("_help9"));
 	}
 
 	public void help(){
@@ -283,7 +316,7 @@ public class LibrarySystem {
 
 	public void welcomeScreen(){
 		System.out.println("\n*************************************************************************************");
-		System.out.println("**                    Welcome to the library !                                     **");
+		System.out.println(messageBundle.get("welcome"));
 		System.out.println("**                                                                                 **");
 		_help();
 	}

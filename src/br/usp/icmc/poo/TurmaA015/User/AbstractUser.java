@@ -3,20 +3,23 @@ package br.usp.icmc.poo.TurmaA015.User;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 import java.time.LocalDate;
 
 abstract class AbstractUser implements User {
 	protected int maxFiles;
 	protected int maxRentTime;
 	protected String name;
+	protected String id;
+	protected String nationality;
 	protected boolean permission;
-	private LocalDate ban;
-	private LocalDate creationDate;
-	private ArrayList<Rentable> ownedFiles;
+	protected LocalDate ban;
+	protected LocalDate creationDate;
+	protected ArrayList<Rentable> ownedFiles;
 
-	public AbstractUser(String str, LocalDate date){
-		name = str;
+	public AbstractUser(String name, String id, String nationality, LocalDate date){
+		this.name = name;
+		this.id = id;
+		this.nationality = nationality;
 		ownedFiles = new ArrayList<Rentable>();
 		ban = null;
 		creationDate = date;
@@ -67,15 +70,16 @@ abstract class AbstractUser implements User {
 	public String getName(){
 		return name;
 	}
-
-	public LocalDate getCreationDate(){
-		return creationDate;
+	
+	public String getNationality(){
+		return nationality;
 	}
 
-	public String getFilesName(){
-		return ownedFiles
-			.stream()
-			.map(Rentable::getName)
-			.collect(Collectors.joining(" "));
+	public String getId(){
+		return id;
+	}
+	
+	public LocalDate getCreationDate(){
+		return creationDate;
 	}
 }
