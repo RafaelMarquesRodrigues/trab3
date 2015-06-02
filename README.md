@@ -42,3 +42,4 @@
 * Simply double click the **.jar**, and the program shall be executed in the terminal. Make sure that the folder *data* is in the same directory as the **.jar** file, because it's needed for the program to save the library information.<br>
 * The files shown with the command **show files** have the field **file code** with the code needed to rent or refund that file. The same happens to the command **show users**.<br>
 * To simplify the use of the program, the library is already populated with some files, but not users, as they might be added accordingly to each library.
+* To use the command *show files added* and *show users added*, the library needs to be closed and opened again. To see users added in a same execution, use *show users* or *show files*.
