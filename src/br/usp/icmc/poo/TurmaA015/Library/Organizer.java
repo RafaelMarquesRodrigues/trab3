@@ -33,4 +33,7 @@ public interface Organizer {
 	boolean setDate(int day, int month, int year);
 
 	String getDate();
+	
+	public User getUser(String id);
+	public Rentable getFileAtIndex(String index);
 }

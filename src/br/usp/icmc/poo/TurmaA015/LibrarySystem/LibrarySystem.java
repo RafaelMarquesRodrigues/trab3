@@ -206,13 +206,13 @@ public class LibrarySystem {
 			else if(rentResult == -2)
 				System.out.println("File code " + code + " not found.\nTry \"show files\" to see all the files codes, or \"show filename <name>\" to see only the books with title <name>.");
 			else if(rentResult == -3)
-				System.out.println("The book with id " + code + " is already rented, and there are no copies available.\n");
+				System.out.println("The file " + library.getFileAtIndex(code).getName() + " (Code: " + code  + ") is already rented, and there are no copies available.\n");
 			else if(rentResult == -4)
-				System.out.println("User id " + id + " already has max number of rented files.\n");
+				System.out.println("User " + library.getUser(id).getName() + " (ID: " + id  + ") already has max number of rented files.\n");
 			else if(rentResult == -5)
-				System.out.println("User id " + id + " doesn't have permission to rent the file " + code + ".\n");
+				System.out.println("User " + library.getUser(id).getName() + " (ID: " + id  + ") doesn't have permission to rent the file " + library.getFileAtIndex(code).getName() + " (Code: " + code  + ").\n");
 			else if(rentResult == -6)
-				System.out.println("User id " + id + " cant rent the file " + code + " because he/she is banned.\n");
+				System.out.println("User " + library.getUser(id).getName() + " (ID: " + id  + ") cant rent the file " + library.getFileAtIndex(code).getName() + " (Code: " + code  + ") because he/she is banned.\n");
 			else		
 				System.out.println("File rented !\n");
 		}
@@ -233,7 +233,7 @@ public class LibrarySystem {
 
 			if(refundResult == 0)
 				System.out.println("You are on read only mode ! Please return to " + library.getDate() + " to perform this action.\n");
-			if(refundResult == -1)
+			else if(refundResult == -1)
 				System.out.println("User id " + id + " not found.\n");
 			else if(refundResult == -2)
 				System.out.println("File id " + code + " not found.\n");

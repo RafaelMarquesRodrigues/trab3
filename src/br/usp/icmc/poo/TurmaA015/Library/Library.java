@@ -21,6 +21,7 @@ public class Library implements Organizer {
 	private String rentsData;
 	private String usersData;
 	private String filesData;
+	private String systemData;
 	private LocalDate systemDate;
 	private LocalDate today;
 	private boolean systemLoading;
@@ -42,13 +43,11 @@ public class Library implements Organizer {
 
 		file = new File("data/refunds.csv");
 		refundsData = file.getPath();
-
+		
 		systemDate = LocalDate.now();
 		today = systemDate;
-
 		readOnly = false;
 
-		systemLoading = false;
 	}
 
 	public boolean setDate(int day, int month, int year){
@@ -56,10 +55,21 @@ public class Library implements Organizer {
 
 			systemDate = LocalDate.of(year, month, day);
 
-			if(today.isAfter(systemDate))
+			if(today.isAfter(systemDate)){
 				readOnly = true;
+				System.out.println("System is operating in the past: " + dateToString(systemDate) + ". Read only mode active.");
+			}
 			else{
 				exit();
+				try {
+					PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(systemData, false)));
+					pw.println(getSystemDate());
+					pw.close();
+				}
+				catch(FileNotFoundException e){}
+				catch(IOException e){
+					System.out.println(e);
+				}
 				users = new ArrayList<User>();
 				files = new ArrayList<Rentable>();
 				today = systemDate;
@@ -91,6 +101,10 @@ public class Library implements Organizer {
         if (year % 4 != 0) return false;
         if (year % 100 != 0) return true;
         return year % 400 == 0;        
+    }
+    
+    public String getSystemDate(){
+    	return dateToString(systemDate);
     }
 
     public String getDate(){
@@ -312,7 +326,7 @@ public class Library implements Organizer {
 
 				if(parts[5].equals(dateToString(systemDate))){
 					userAdded = true;
-					System.out.println(parts[0] + " " + parts[1] + " was added in " + parts[3]);
+					System.out.println(parts[0] + " " + parts[1] + " - Nationality: " + parts[3] + " - ID: " + parts[2]);
 				}
 			}
 
@@ -350,7 +364,7 @@ public class Library implements Organizer {
 
 				if(parts[5].equals(dateToString(systemDate))){
 					fileAdded = true;
-					System.out.println(parts[0] + " " + parts[1] + " was added in " + parts[3]);
+					System.out.println(parts[1] + " " + parts[2] + " - Language: " + parts[3] + " - Publishing house: " + parts[4]);
 				}
 			}
 
@@ -426,7 +440,7 @@ public class Library implements Organizer {
 			while((input = br.readLine()) != null){
 				parts = input.split(",");
 
-				if(parts[6].equals(dateToString(systemDate))){
+				if(parts[5].equals(dateToString(systemDate))){
 					refundMade = true;
 					User u = getUser(parts[0]);
 					System.out.println(u.getType() + " " + u.getName() + " refunded " + parts[1].toLowerCase() + " " + parts[2] + " - Language: " + parts[3] + " - Publishing house: " + parts[4]);
@@ -471,6 +485,10 @@ public class Library implements Organizer {
 		return _hasUser(u -> u.getId().equals(id)).orElse(null);
 	}
 
+	public Rentable getAvailableFile(String name, String language, String publishingHouse){
+		return _hasFile(r -> r.isAvailable() && r.getName().equals(name) && r.getLanguage().equals(language) && r.getPublishingHouse().equals(publishingHouse)).orElse(null);
+	}
+	
 	public Rentable getFile(String name, String language, String publishingHouse){
 		return _hasFile(r -> r.getName().equals(name) && r.getLanguage().equals(language) && r.getPublishingHouse().equals(publishingHouse)).orElse(null);
 	}
@@ -567,7 +585,7 @@ public class Library implements Organizer {
 					addFile(r);
 					
 					if(!content[0].equals("none")){
-						rentFile(content[0], new Integer(files.indexOf(getFile(content[2], content[3], content[4]))).toString());
+						rentFile(content[0], new Integer(files.indexOf(getAvailableFile(content[2], content[3], content[4]))).toString());
 						r.setRentExpirationDate(stringToDate(content[6]));
 
 						time = stringToDate(content[6]).until(systemDate, ChronoUnit.DAYS);
@@ -589,7 +607,36 @@ public class Library implements Organizer {
 		catch(IOException e){
 			System.out.println("Error trying to load files content.");
 		}
-
+		
+		
+		File file = new File("data/system.csv");
+		systemData = file.getPath();
+		
+		if(file.exists()){
+			try {
+				br = new BufferedReader(new FileReader(systemData));
+				String date = br.readLine();
+				
+				//se a ultima alteração foi feita no futuro, o sistema reinicia na data atual, mas no modo readOnly
+				//e poe o dia da ultima alteração em "today"
+				if(stringToDate(date).isAfter(systemDate)){
+					today = stringToDate(date);
+					readOnly = true;
+					System.out.println("System is operating in the past: " + dateToString(systemDate) + ". Read only mode active.");
+				}
+				else{
+					today = systemDate;
+					readOnly = false;
+				}
+				
+				br.close();
+			}
+			catch(FileNotFoundException e){}
+			catch(IOException e){
+				System.out.println(e);
+			}
+		}
+		
 		systemLoading = false;
 	}
 
