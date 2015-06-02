@@ -1,6 +1,7 @@
 
 package br.usp.icmc.poo.TurmaA015.Library;
 
+import br.usp.icmc.poo.TurmaA015.MessageBundle.MessageBundle;
 import br.usp.icmc.poo.TurmaA015.Rentable.*;
 import br.usp.icmc.poo.TurmaA015.User.*;
 
@@ -15,7 +16,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.function.*;
 
 public class Library implements Organizer {
-	private ArrayList<User> users;			//guarda os dados de cada usuário
+	private ArrayList<User> users;			//guarda os dados de cada usuario
 	private ArrayList<Rentable> files;	 	//guarda todos os arquivos da biblioteca
 	private String refundsData;
 	private String rentsData;
@@ -26,8 +27,10 @@ public class Library implements Organizer {
 	private LocalDate today;
 	private boolean systemLoading;
 	private boolean readOnly;
+        private MessageBundle messageBundle;
 
-	public Library() {
+	public Library(MessageBundle messageBundle) {
+                this.messageBundle = messageBundle;
 		users = new ArrayList<User>();
 		files = new ArrayList<Rentable>();
 
@@ -57,7 +60,7 @@ public class Library implements Organizer {
 
 			if(today.isAfter(systemDate)){
 				readOnly = true;
-				System.out.println("System is operating in the past: " + dateToString(systemDate) + ". Read only mode active.");
+				System.out.println(messageBundle.get("sysOperating") + dateToString(systemDate) + messageBundle.get("read_mode3"));
 			}
 			else{
 				exit();
@@ -228,7 +231,7 @@ public class Library implements Organizer {
 	}
 
 	public void showUsers(Predicate<User> filter){
-		System.out.println("\n\n** Showing currently registered users **\n");
+		System.out.println(messageBundle.get("usersRegistered"));
 		
 		users
 			.stream()
@@ -237,32 +240,32 @@ public class Library implements Organizer {
 				System.out.println("\n================================================\n");
 				System.out.println(user.getType() + " " + user.getName());
 	
-				System.out.println("User added in " + dateToString(user.getCreationDate()));
-				System.out.println("ID: " + user.getId());
-				System.out.println("Nationality: " + user.getNationality());
+				System.out.println(messageBundle.get("userAddedIn") + dateToString(user.getCreationDate()));
+				System.out.println(messageBundle.get("ID") + user.getId());
+				System.out.println(messageBundle.get("nationality") + user.getNationality());
 				
 				if(user.isBanned())
-					System.out.println("Banned until: " + dateToString(user.getBanTime()));
+					System.out.println(messageBundle.get("bannedUntil") + dateToString(user.getBanTime()));
 				
 				if(user.getFilesQuantity() > 0){
-					System.out.println("\nRented books for this user: \n");
+					System.out.println(messageBundle.get("rentedForUser"));
 	
 					for(Rentable r : files){
 						if(user.hasFile(r)){
-							System.out.print(r.getType() + " " + r.getName() + " - Expiration date: " + dateToString(r.getRentExpirationDate()) + " - File code: " + files.indexOf(r));
+							System.out.print(r.getType() + " " + r.getName() + messageBundle.get("expirationDate") + dateToString(r.getRentExpirationDate()) + messageBundle.get("fileCode") + files.indexOf(r));
 							
 							if(r.getDelay() != 0)
-								System.out.print(" (Please refund this book to the library as soon as possible.)");
+								System.out.print(messageBundle.get("pleaseRefund"));
 						
 						System.out.print("\n");
 						}
 					}
 				}
 				else
-					System.out.println("This user doens't have any book rented.");
+					System.out.println(messageBundle.get("noBooksRented"));
 			});
 		if(users.size() == 0)
-			System.out.println("There are no users at the library yet.");
+			System.out.println(messageBundle.get("noUsersYet"));
 
 		System.out.println("\n================================================\n");
 	}
@@ -275,7 +278,7 @@ public class Library implements Organizer {
 									.collect(Collectors.groupingBy((r) -> r.getName() + "," + r.getType() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.mapping((r) -> r.getType() + "," + r.getName() + "," + r.getLanguage() + "," + r.getPublishingHouse(), Collectors.counting())));
 		
 		if(files.size() > 0){
-			System.out.println("\n\n** Showing currently registered files **\n");
+			System.out.println(messageBundle.get("filesRegistered"));
 			
 			filesMap.keySet()
 				.stream()
@@ -286,14 +289,14 @@ public class Library implements Organizer {
 					Rentable r = getFile(parts[0], parts[2], parts[3]);
 					System.out.println("\n================================================\n");
 					System.out.println(r.getType() + " \"" + r.getName() + "\"");
-					System.out.println("Language: " + r.getLanguage());
-					System.out.println("Publishing house: " + r.getPublishingHouse());
-					System.out.println("Copies: " + filesMap.get(s));
-					System.out.println("File code: " + (getIndexOfAvailableCopy(r) == -1 ? "File not available." : getIndexOfAvailableCopy(r) + "."));
+					System.out.println(messageBundle.get("language2") + r.getLanguage());
+					System.out.println(messageBundle.get("house2") + r.getPublishingHouse());
+					System.out.println(messageBundle.get("copies2") + filesMap.get(s));
+					System.out.println(messageBundle.get("fileCode2") + (getIndexOfAvailableCopy(r) == -1 ? messageBundle.get("fileNotAvaible") : getIndexOfAvailableCopy(r) + "."));
 				});
 		}
 		else
-			System.out.println("There are no files at the library yet.");
+			System.out.println(messageBundle.get("noFilesYet"));
 			
 		System.out.println("\n================================================\n");
 	}
@@ -311,7 +314,7 @@ public class Library implements Organizer {
 		BufferedReader br;
 		boolean userAdded = false;
 
-		System.out.println("\n\n** Showing users added in " + dateToString(systemDate) + " **\n");
+		System.out.println(messageBundle.get("usersShow") + dateToString(systemDate) + " **\n");
 		
 		System.out.println("\n================================================\n");
 
@@ -326,21 +329,21 @@ public class Library implements Organizer {
 
 				if(parts[5].equals(dateToString(systemDate))){
 					userAdded = true;
-					System.out.println(parts[0] + " " + parts[1] + " - Nationality: " + parts[3] + " - ID: " + parts[2]);
+					System.out.println(parts[0] + " " + parts[1] + " - " + messageBundle.get("nationality") + parts[3] + " - " + messageBundle.get("ID") + parts[2]);
 				}
 			}
 
 			br.close();
 		}
 		catch(FileNotFoundException e){
-			System.out.println("Found no users to show.");
+			System.out.println(messageBundle.get("noUsersShow"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to load content.");
+			System.out.println(messageBundle.get("loadError"));
 		}
 
 		if(!userAdded)
-			System.out.println("No users were added in " + dateToString(systemDate) + ".");
+			System.out.println(messageBundle.get("noUsersAdded") + dateToString(systemDate) + ".");
 		
 		System.out.println("\n================================================\n");
 	}
@@ -349,7 +352,7 @@ public class Library implements Organizer {
 		BufferedReader br;
 		boolean fileAdded = false;
 
-		System.out.println("\n\n** Showing files added in " + dateToString(systemDate) + " **\n");
+		System.out.println(messageBundle.get("filesShow") + dateToString(systemDate) + " **\n");
 		
 		System.out.println("\n================================================\n");
 
@@ -364,21 +367,21 @@ public class Library implements Organizer {
 
 				if(parts[5].equals(dateToString(systemDate))){
 					fileAdded = true;
-					System.out.println(parts[1] + " " + parts[2] + " - Language: " + parts[3] + " - Publishing house: " + parts[4]);
+					System.out.println(parts[1] + " " + parts[2] + messageBundle.get("language") + parts[3] + messageBundle.get("house") + parts[4]);
 				}
 			}
 
 			br.close();
 		}
 		catch(FileNotFoundException e){
-			System.out.println("Found no files to show.");
+			System.out.println(messageBundle.get("noFilesShow"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to load content.");
+			System.out.println(messageBundle.get("loadError"));
 		}
 
 		if(!fileAdded)
-			System.out.println("No files were added in " + dateToString(systemDate) + ".");
+			System.out.println(messageBundle.get("noFilesAdded") + dateToString(systemDate) + ".");
 		
 		System.out.println("\n================================================\n");
 	}
@@ -388,7 +391,7 @@ public class Library implements Organizer {
 		BufferedReader br;
 		boolean rentMade = false;
 
-		System.out.println("\n\n** Showing rents made in " + dateToString(systemDate) + " **\n");
+		System.out.println(messageBundle.get("rentShow") + dateToString(systemDate) + " **\n");
 		
 		System.out.println("\n================================================\n");
 
@@ -404,21 +407,21 @@ public class Library implements Organizer {
 				if(parts[5].equals(dateToString(systemDate))){
 					rentMade = true;
 					User u = getUser(parts[0]);
-					System.out.println(u.getType() + " " + u.getName() + " rented " + parts[1].toLowerCase() + " " + parts[2] + " - Language: " + parts[3] + " - Publishing house: " + parts[4]);
+					System.out.println(u.getType() + " " + u.getName() + messageBundle.get("rented") + parts[1].toLowerCase() + " " + parts[2] + messageBundle.get("language") + parts[3] + messageBundle.get("house") + parts[4]);
 				}
 			}
 
 			br.close();
 		}
 		catch(FileNotFoundException e){
-			System.out.println("Found no rents to show.");
+			System.out.println(messageBundle.get("noRentsShow"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to load content.");
+			System.out.println(messageBundle.get("load_error"));
 		}
 
 		if(!rentMade)
-			System.out.println("No rents were made in " + dateToString(systemDate) + ".");
+			System.out.println(messageBundle.get("NoRentsMade") + dateToString(systemDate) + ".");
 		
 		System.out.println("\n================================================\n");
 	}
@@ -427,7 +430,7 @@ public class Library implements Organizer {
 		BufferedReader br;
 		boolean refundMade = false;
 
-		System.out.println("\n\n** Showing refunds made in " + dateToString(systemDate) + " **\n");
+		System.out.println(messageBundle.get("refundShow") + dateToString(systemDate) + " **\n");
 
 		System.out.println("\n================================================\n");
 
@@ -443,40 +446,40 @@ public class Library implements Organizer {
 				if(parts[5].equals(dateToString(systemDate))){
 					refundMade = true;
 					User u = getUser(parts[0]);
-					System.out.println(u.getType() + " " + u.getName() + " refunded " + parts[1].toLowerCase() + " " + parts[2] + " - Language: " + parts[3] + " - Publishing house: " + parts[4]);
+					System.out.println(u.getType() + " " + u.getName() + messageBundle.get("refunded") + parts[1].toLowerCase() + " " + parts[2] + messageBundle.get("language") + parts[3] + messageBundle.get("house") + parts[4]);
 				}
 			}
 
 			br.close();
 		}
 		catch(FileNotFoundException e){
-			System.out.println("Found no refunds to show.");
+			System.out.println(messageBundle.get("noRefundsShow"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to load content.");
+			System.out.println(messageBundle.get("loadError"));
 		}
 
 		if(!refundMade)
-			System.out.println("No refunds were made in " + dateToString(systemDate) + ".");
+			System.out.println(messageBundle.get("noRefundsMade") + dateToString(systemDate) + ".");
 
 		System.out.println("\n================================================\n");
 	}
 
 	public Rentable getRentedFileAtIndex(String id, String index){
-		if(files.size() > Integer.parseInt(index) && getUser(id).hasFile(files.get(Integer.parseInt(index))) && Integer.parseInt(index) >= 0){
+		if(files.size() > Integer.parseInt(index) && getUser(id).hasFile(files.get(Integer.parseInt(index)))){
 			return files.get(Integer.parseInt(index));
 		}		
 		return null;
 	}
 	
 	public Rentable getFileAtIndex(String index){
-		if(files.size() > Integer.parseInt(index) && Integer.parseInt(index) >= 0)
+		if(files.size() > Integer.parseInt(index) && Integer.parseInt(index) > 0)
 			return files.get(Integer.parseInt(index));
 		return null;
 	}
 	
 	public Rentable getAvailableFileAtIndex(String index){
-		if(files.size() > Integer.parseInt(index) && files.get(Integer.parseInt(index)).isAvailable() && Integer.parseInt(index) >= 0)
+		if(files.size() > Integer.parseInt(index) && files.get(Integer.parseInt(index)).isAvailable())
 				return files.get(Integer.parseInt(index));
 		return null;
 	}
@@ -554,7 +557,7 @@ public class Library implements Organizer {
 
 					//se o dia atual for depois do dia máximo de ban, retiriamos o ban do usuário
 					if(systemDate.isAfter(user.getBanTime())){
-						System.out.println("User " + content[1] + " is no longer banned.");
+						System.out.println(messageBundle.get("user") + content[1] + messageBundle.get("cancelBan"));
 						user.setBan(null);
 					}
 				}
@@ -563,10 +566,10 @@ public class Library implements Organizer {
 			br.close();
 		}
 		catch(FileNotFoundException e){
-			System.out.println("Found no users content to load.");
+			System.out.println(messageBundle.get("noUsers"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to load users content.");
+			System.out.println(messageBundle.get("loadUsersError"));
 		}
 
 		try{
@@ -593,7 +596,7 @@ public class Library implements Organizer {
 						//se a diferença entre a data atual e a data máxima de entrega do livro for positiva, o usuário atrasou a devolução e deve ser banido
 						if(time > 0){
 							r.setDelay((int) time);
-							System.out.println("Delay on file " + r.getName() + " - " + time + " days.");
+							System.out.println(messageBundle.get("delay") + r.getName() + " - " + time + messageBundle.get("days"));
 							getUser(content[0]).setBan(systemDate.plusDays(time));
 						}
 					}
@@ -602,10 +605,10 @@ public class Library implements Organizer {
 			br.close();
 		}
 		catch(FileNotFoundException e){
-			System.out.println("Found no files content to load.");
+			System.out.println(messageBundle.get("noFiles"));
 		}
 		catch(IOException e){
-			System.out.println("Error trying to load files content.");
+			System.out.println(messageBundle.get("loadFilesError"));
 		}
 		
 		
@@ -617,12 +620,12 @@ public class Library implements Organizer {
 				br = new BufferedReader(new FileReader(systemData));
 				String date = br.readLine();
 				
-				//se a ultima altera��o foi feita no futuro, o sistema reinicia na data atual, mas no modo readOnly
-				//e poe o dia da ultima altera��o em "today"
+				//se a ultima altera��o foi feita no futuro, o sistema reinicia na data atual, mas no modo readOnly
+				//e poe o dia da ultima altera��o em "today"
 				if(stringToDate(date).isAfter(systemDate)){
 					today = stringToDate(date);
 					readOnly = true;
-					System.out.println("System is operating in the past: " + dateToString(systemDate) + ". Read only mode active.");
+					System.out.println(messageBundle.get("sysOperating") + dateToString(systemDate) + messageBundle.get("read_mode3"));
 				}
 				else{
 					today = systemDate;
@@ -712,7 +715,7 @@ public class Library implements Organizer {
 			pw.close();
 		}
 		catch(IOException e){
-			System.out.println("Error trying to open file");
+			System.out.println(messageBundle.get("open_error"));
 		}
 	}
 }
