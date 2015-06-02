@@ -3,7 +3,7 @@
 ##The implemented library supports the commands below:<br>
 ###(Command format: command \<post-command argument\> [options for the post-command argument])<br><br>
 
-**add <type> [book] [note] [student] [teacher] [community]**<br>
+**add \<type\> [book] [note] [student] [teacher] [community]**<br>
 *Adds an instance of the selected type to the library.*<br><br>
 
 **rent file**<br>
@@ -14,11 +14,11 @@
 *Request to refund a file from an user to the library.*<br>
 (aditional information to complete the command will be asked later)<br><br>
 
-**show <type> [users] [files] [rents] [refunds] [users added] [files added]**<br>
+**show \<type\> [users] [files] [rents] [refunds] [users added] [files added]**<br>
 *The first four arguments show respectively the information about the current registered users, files, rents and refunds.*<br>
 *The last two arguments show the users added or the files added in the current day that the library is working on.*<br><br>
 
-**show [filename] [username] <name>**<br>
+**show \<name\> [filename] [username]**<br>
 *Shows all the files or all the usernames with names equal to the argument **name**.*<br>
 *The name can be typed without accent, and the command is not case sensitive*<br>
 *(Usefull command to show files code or users id, that are necessary to rent or refund files.)*<br><br>
