@@ -303,6 +303,7 @@ public class LibrarySystem {
 		System.out.println("**       show <type> [users] [files] [rents] [refunds] [users added] [files added] **");
 		System.out.println("**       show [filename] [username] <name>                                         **");
 		System.out.println("**       set date                                                                  **");
+		System.out.println("**       help                                                                     **");
 		System.out.println("**       reset                                                                     **");
 		System.out.println("*************************************************************************************\n");	
 	}
