@@ -35,4 +35,8 @@
 **reset**<br>
 *Resets the library completly. The user will be asked sure if he/she want to perform the operation.*<br><br>
 
-###Further tips will be shown at run time !
+###Further tips will be shown at run time !<br><br>
+
+#Using the library<br>
+
+Simply double click the **.jar**, and the program shall be executed in the terminal. Make sure that de folder *data* is in the same directory as the **.jar** file, because it's needed for the program to save the library information.<br>
